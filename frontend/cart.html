@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="fw-bold text-dark mb-4 border-bottom pb-2 brand-font">Your Artisan Cart</h2>
+        <div id="alertBox"></div>
+
+        <div class="row">
+            <div class="col-md-8" id="cartItems">
+                <div class="text-center w-100 py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">Order Summary</h5>
+                    <div class="d-flex justify-content-between mb-3 text-muted">
+                        <span>Items Total</span>
+                        <span id="subTotal" class="fw-bold text-dark">₹0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-muted border-bottom pb-3">
+                        <span>Platform Fee (Support)</span>
+                        <span id="platFee" class="text-success small fw-bold">+ 10%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-primary">
+                        <span>Total Pay</span>
+                        <span id="finalTotal">₹0</span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-bold">Select Payment Mode</label>
+                        <select id="paymentMethod" class="form-select border-primary shadow-sm">
+                            <option value="razorpay">Pay Online (Razorpay) 🔒</option>
+                            <option value="cod">Cash On Delivery (COD)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm mb-2" id="checkoutBtn"
+                        onclick="checkout()">Proceed to Secure Checkout</button>
+                    <small class="text-muted text-center d-block"><i class="fas fa-lock me-1"></i> 256-bit encrypted
+                        checkout</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        let cartData = [];
+        let finalPrice = 0;
+
+        async function loadCart() {
+            const user = window.protectPage('customer');
+            if (!user) return;
+            try {
+                const data = await window.fetchAPI('/cart');
+                const cartItemsContainer = document.getElementById('cartItems');
+
+                if (!data.items || data.items.length === 0) {
+                    cartItemsContainer.innerHTML = `
+                        <div class="card p-5 text-center bg-white shadow-sm">
+                            <h4 class="text-muted fw-bold">Your cart is empty.</h4>
+                            <a href="index.html" class="btn btn-primary mt-3 w-50 mx-auto">Discover Handicrafts</a>
+                        </div>
+                    `;
+                    document.getElementById('checkoutBtn').disabled = true;
+                    return;
+                }
+
+                cartData = data.items;
+                document.getElementById('checkoutBtn').disabled = false;
+
+                let html = '';
+                let subTotal = 0;
+
+                cartData.forEach(item => {
+                    if (!item.productId) return; // safeguard deleted product
+                    const price = item.productId.price;
+                    subTotal += price * item.quantity;
+                    const img = (item.productId.images && item.productId.images.length > 0) ? item.productId.images[0] : 'https://via.placeholder.com/150';
+
+                    html += `
+                        <div class="card p-3 mb-3 shadow-sm bg-white border-0 position-relative">
+                            <div class="d-flex align-items-center">
+                                <img src="${img}" class="rounded" style="width: 100px; height: 100px; object-fit:cover;" alt="product">
+                                <div class="ms-4 flex-grow-1">
+                                    <h5 class="fw-bold mb-1 text-dark">${item.productId.name}</h5>
+                                    <h6 class="text-primary mb-2 fw-bold">₹${price}</h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted small border px-2 py-1 rounded">Qty: ${item.quantity}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end ms-auto align-self-start">
+                                    <button class="btn btn-sm btn-outline-danger fw-bold" onclick="removeItem('${item.productId._id}')">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                cartItemsContainer.innerHTML = html;
+                finalPrice = subTotal + (subTotal * 0.10);
+
+                document.getElementById('subTotal').innerText = `₹${subTotal.toFixed(2)}`;
+                document.getElementById('finalTotal').innerText = `₹${finalPrice.toFixed(2)}`;
+
+            } catch (err) {
+                document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                document.getElementById('cartItems').innerHTML = '';
+            }
+        }
+
+        async function removeItem(pid) {
+            try {
+                // We use our simpler route wrapper logic via POST for easy fetchAPI bridging
+                await window.fetchAPI(`/cart/remove/${pid}`, 'POST');
+                loadCart();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function checkout() {
+            try {
+                const btn = document.getElementById('checkoutBtn');
+                btn.innerHTML = 'Processing Order...';
+                btn.disabled = true;
+
+                const paymentMode = document.getElementById('paymentMethod').value;
+
+                // Create Order internally
+                const orderPayload = {
+                    orderItems: cartData.map(c => ({
+                        productId: c.productId._id,
+                        qty: c.quantity,
+                        price: c.productId.price
+                    })),
+                    totalPrice: finalPrice
+                };
+
+                const orderRes = await window.fetchAPI('/orders', 'POST', orderPayload);
+                const orderId = orderRes._id;
+
+                if (paymentMode === 'razorpay') {
+                    // Trigger Razorpay Create Order
+                    const rzpRes = await window.fetchAPI('/payment/create-order', 'POST', { orderId });
+
+                    const options = {
+                        key: "rzp_test_mock123", // Using mock/fallback for testing
+                        amount: rzpRes.amount,
+                        currency: rzpRes.currency,
+                        name: "KalaConnect",
+                        description: "Artisan Marketplace Purchase",
+                        order_id: rzpRes.id,
+                        handler: async function (response) {
+                            try {
+                                await window.fetchAPI('/payment/verify', 'POST', {
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature || "mock_signature_success",
+                                    order_id: orderId
+                                });
+                                await completeCheckout();
+                            } catch (error) {
+                                alert("Payment verification failed! " + error.message);
+                                btn.disabled = false;
+                                btn.innerHTML = 'Proceed to Secure Checkout';
+                            }
+                        },
+                        prefill: {
+                            name: "Valued Customer",
+                            email: "customer@kalaconnect.com",
+                            contact: "9999999999"
+                        },
+                        theme: {
+                            color: "#0d6efd"
+                        }
+                    };
+
+                    const rzp1 = new Razorpay(options);
+                    rzp1.on('payment.failed', function (response) {
+                        alert("Payment Failed. Reason: " + response.error.description);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Proceed to Secure Checkout';
+                    });
+                    rzp1.open();
+
+                } else {
+                    // Trigger COD Path
+                    await window.fetchAPI('/payment/cod', 'POST', { orderId });
+                    await completeCheckout();
+                }
+
+            } catch (err) {
+                document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                document.getElementById('checkoutBtn').innerHTML = 'Proceed to Secure Checkout';
+                document.getElementById('checkoutBtn').disabled = false;
+            }
+        }
+
+        async function completeCheckout() {
+            // Clear cart logic locally via backend proxy
+            await window.fetchAPI('/cart/clear', 'POST');
+            document.getElementById('alertBox').innerHTML = `<div class="alert alert-success fw-bold text-center fs-5 shadow-sm p-4">Thank you! Your order was placed protecting Artisan livelihood. Generating invoice...</div>`;
+            setTimeout(() => window.location.href = 'orders.html', 2000);
+        }
+
+        loadCart();
+    </script>
+</body>
+
+</html>

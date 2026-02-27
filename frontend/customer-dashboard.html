@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="bg-primary text-white py-5 mb-5 text-center">
+        <div class="container">
+            <h2 class="fw-bold mb-2">Welcome Back, <span id="userName">Shopper</span>!</h2>
+            <p class="lead mb-0 text-white-50">Discover authentic crafts from local Visakhapatnam artisans.</p>
+
+            <div class="mt-4 gap-3 d-flex justify-content-center">
+                <a href="cart.html" class="btn btn-light bg-white text-primary fw-bold px-4">🛒 View Cart</a>
+                <a href="orders.html" class="btn btn-outline-light fw-bold px-4">🛍️ My Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold brand-font text-dark mb-2">My Customer Dashboard</h2>
+            <div style="height: 3px; width: 60px; background-color: var(--accent); margin: 0 auto;"></div>
+        </div>
+        <div id="dynamicProducts" class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="w-100 text-center text-muted py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2">Loading latest products...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = window.protectPage('customer');
+            if (!user) return; // Halt script if not authorized
+
+            document.getElementById('userName').innerText = user.name || JSON.parse(localStorage.getItem('user')).name;
+
+            await loadCustomerProducts();
+        });
+
+        async function loadCustomerProducts() {
+            try {
+                const data = await window.fetchAPI('/products', 'GET');
+                const products = data.data || [];
+                const grid = document.getElementById('dynamicProducts');
+
+                if (products.length === 0) {
+                    grid.innerHTML = `<div class="w-100 text-center py-5 text-muted">No products available at the moment.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = products.map(p => `
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 product-card">
+                            <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300'}" class="card-img-top" alt="${p.name}" style="height: 250px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold text-dark">${p.name}</h5>
+                                <p class="card-text text-muted small text-truncate">${p.description}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="fs-5 fw-bold text-primary">₹${p.price}</span>
+                                    <div class="d-flex gap-2">
+                                        <a href="product.html?id=${p._id}" class="btn btn-sm btn-outline-secondary">View</a>
+                                        <button class="btn btn-sm btn-primary" onclick="addToCart('${p._id}', '${p.name}')">Add to Cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('dynamicProducts').innerHTML = `<div class="alert alert-danger w-100">${err.message}</div>`;
+            }
+        }
+
+        async function addToCart(productId, productName) {
+            try {
+                await window.fetchAPI('/cart', 'POST', { productId, quantity: 1 });
+                alert(`Added ${productName} to your cart successfully!`);
+            } catch (err) {
+                alert(`Error adding to cart: ${err.message}`);
+            }
+        }
+    </script>
+</body>
+
+</html>

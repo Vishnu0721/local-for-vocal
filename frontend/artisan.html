@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Profile | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cover-photo {
+            height: 300px;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200&q=80') center/cover;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 5px solid white;
+            margin-top: -75px;
+        }
+
+        .qr-badge {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            padding: 2px;
+            border-radius: 8px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div id="artisanContent">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Loading Profile...</p>
+        </div>
+    </div>
+
+    <!-- Template -->
+    <template id="artisanTemplate">
+        <div class="cover-photo"></div>
+        <div class="container mb-5">
+
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img id="avatar" src="" class="rounded-circle profile-avatar shadow bg-white mb-3">
+                    <h2 class="fw-bold mb-1" id="name">Loading...</h2>
+                    <p class="text-muted mb-2"><i class="fas fa-map-marker-alt text-danger"></i> <span
+                            id="location">Village</span></p>
+                    <span class="badge bg-success mb-3 p-2 shadow-sm"><i class="fas fa-check-circle"></i> Verified
+                        Indigenous Artisan</span>
+
+                    <div class="card border-0 shadow-sm mt-3 p-3 text-start">
+                        <small class="text-uppercase text-muted fw-bold mb-2">Heritage Story</small>
+                        <p class="small text-secondary fst-italic lh-lg mb-0" id="story"></p>
+                    </div>
+
+                    <div class="mt-4 mb-4 text-center">
+                        <small class="text-muted d-block fw-bold mb-2">Authenticity Profile Link QR</small>
+                        <img id="qrCode" src="" class="qr-badge d-none mx-auto shadow-sm">
+                    </div>
+                </div>
+
+                <div class="col-md-8 pt-4">
+                    <h4 class="fw-bold mb-4 border-bottom pb-2">Artisan's Digital Gallery</h4>
+                    <div id="productsGrid" class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="text-muted text-center w-100 py-4">Loading masterpieces...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = newSearchParams(window.location.search);
+            const artisanId = urlParams.get('id');
+
+            if (!artisanId) {
+                document.getElementById('artisanContent').innerHTML = '<div class="alert alert-danger text-center m-5 shadow-sm">Artisan Profile not found.</div>';
+                return;
+            }
+
+            try {
+                // Fetch artisan details
+                const res = await window.fetchAPI(`/artisans/${artisanId}`, 'GET');
+                const artisan = res.data;
+
+                const tmpl = document.getElementById('artisanTemplate');
+                document.getElementById('artisanContent').innerHTML = tmpl.innerHTML;
+
+                // Bind Profile
+                document.getElementById('name').innerText = artisan.userId.name;
+                document.getElementById('avatar').src = artisan.photo || 'https://via.placeholder.com/150';
+                document.getElementById('location').innerText = artisan.village;
+                document.getElementById('story').innerText = artisan.story || "A traditional maker of local crafts.";
+
+                if (artisan.qrCodeUrl) {
+                    const qr = document.getElementById('qrCode');
+                    qr.src = artisan.qrCodeUrl;
+                    qr.classList.remove('d-none');
+                }
+
+                // Fetch their products using userId (artisanId field in products table links to User _id)
+                const prodRes = await window.fetchAPI(`/products/artisan/${artisan.userId._id}`, 'GET');
+                const products = prodRes.data || [];
+                const grid = document.getElementById('productsGrid');
+
+                if (products.length === 0) {
+                    grid.innerHTML = '<div class="col-12 text-center text-muted">No products available at the moment.</div>';
+                    return;
+                }
+
+                grid.innerHTML = products.map(p => `
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 product-card">
+                            <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300'}" class="card-img-top" alt="${p.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold text-dark mb-1 text-truncate">${p.name}</h6>
+                                <p class="card-text text-muted small text-truncate mb-2">${p.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fs-6 fw-bold text-primary">₹${p.price}</span>
+                                    <a href="product.html?id=${p._id}" class="btn btn-sm btn-outline-primary">View Product</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                document.getElementById('artisanContent').innerHTML = `<div class="alert alert-danger text-center m-5 shadow-sm">Could not load artisan profile.</div>`;
+            }
+        });
+
+        // Safe url parser fallback
+        function newSearchParams(search) {
+            try { return new URLSearchParams(search); } catch (e) { return { get: () => null } }
+        }
+    </script>
+</body>
+
+</html>

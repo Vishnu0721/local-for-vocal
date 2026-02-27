@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="fw-bold mb-4 border-bottom pb-2 brand-font">My Order History</h2>
+        <div id="alertBox"></div>
+
+        <div id="ordersList">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Fetching your history...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = window.protectPage('customer');
+            if (!user) return;
+
+            try {
+                const data = await window.fetchAPI('/orders', 'GET');
+                const orders = data || []; // backend returns direct array for getMyOrders or an object
+                const ordersList = Array.isArray(orders) ? orders : (orders.data || []);
+                const container = document.getElementById('ordersList');
+
+                if (ordersList.length === 0) {
+                    container.innerHTML = `
+                        <div class="card p-5 text-center shadow-sm bg-white border-0">
+                            <h4 class="text-muted fw-bold">You have no orders yet.</h4>
+                            <p class="text-secondary mb-4">Support an artisan today!</p>
+                            <a href="index.html" class="btn btn-primary w-25 mx-auto">Shop Now</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = ordersList.map(order => `
+                    <div class="card mb-4 shadow-sm border-0">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold fs-5">Order ID: <small class="fw-light ms-1">#${order._id.substring(order._id.length - 8).toUpperCase()}</small></span>
+                                <br><small class="badge bg-light text-dark mt-1">${order.paymentMethod || 'COD'} - ${order.paymentStatus || 'Pending'}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge ${order.status === 'shipped' ? 'bg-success' : 'bg-warning text-dark'} text-uppercase p-2 mb-1">${order.status || 'Pending'}</span>
+                                ${order.trackingId ? `<br><small class="text-white"><i class="fas fa-truck"></i> ${order.courierName || 'Shiprocket'} AWB: ${order.trackingId}</small>` : ''}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="text-muted mb-3"><i class="fas fa-calendar-alt me-1"></i> Placed on: ${new Date(order.date || order.createdAt).toLocaleDateString()}</h6>
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle mb-0">
+                                    <thead class="border-bottom text-muted small">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-end">Price</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${(order.products || []).map(item => `
+                                            <tr>
+                                                <td class="fw-bold">${item.productId ? item.productId.name : 'Deleted Product'}</td>
+                                                <td class="text-center">${item.quantity || item.qty}</td>
+                                                <td class="text-end">₹${item.price.toFixed(2)}</td>
+                                                <td class="text-end fw-bold">₹${(item.price * (item.quantity || item.qty)).toFixed(2)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                ${order.receiptUrl ? `<a href="${order.receiptUrl}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold"><i class="fas fa-file-pdf me-1"></i> Download Receipt</a>` : '<span class="text-muted small">Receipt generated post-payment.</span>'}
+                            </div>
+                            <div>
+                                <span class="badge-artisan me-3"><i class="fas fa-hand-holding-heart me-1"></i>Platform Fee Included</span>
+                                <h5 class="fw-bold d-inline text-primary m-0">Grand Total: ₹${order.totalPrice.toFixed(2)}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                document.getElementById('ordersList').innerHTML = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

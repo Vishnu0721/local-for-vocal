@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .impact-meter {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+
+        .impact-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
+            width: 85%;
+        }
+
+        .qr-badge {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            padding: 2px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="container my-5" id="productContent">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Loading Masterpiece...</p>
+        </div>
+    </div>
+
+    <!-- Layout Template -->
+    <template id="productTemplate">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page" id="breadName">...</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Left: Imagery -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+                    <img id="mainImage" src="" class="img-fluid w-100" style="height: 500px; object-fit: cover;"
+                        alt="Product Image">
+                </div>
+                <div class="d-flex gap-2 overflow-auto pb-2" id="galleryImages"></div>
+
+                <div class="card p-4 mt-4 border-0 shadow-sm bg-white rounded-4">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 brand-font"><span
+                            class="text-primary fs-3">📖</span>
+                        The Story Behind This Craft</h5>
+                    <p class="text-muted fst-italic lh-lg mb-0" id="makingStory"></p>
+                </div>
+            </div>
+
+            <!-- Right: Details & Artisan -->
+            <div class="col-md-6">
+
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h1 class="fw-bold display-6 mb-0 brand-font" id="prodName">Loading...</h1>
+                    <img id="prodQrCode" src="" class="qr-badge d-none" alt="Product Authenticity QR">
+                </div>
+
+                <h3 class="price-gold fw-bold mb-4" id="prodPrice">₹0</h3>
+
+                <p class="text-secondary lh-lg mb-4" id="prodDesc"></p>
+
+                <!-- Key Facts -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 bg-white rounded shadow-sm border h-100">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1">Materials</small>
+                            <span class="fw-bold text-dark" id="prodMat">...</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-white rounded shadow-sm border h-100">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1">Time to Craft</small>
+                            <span class="fw-bold text-dark" id="prodTime">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action -->
+                <button class="btn btn-primary btn-lg w-100 fw-bold mb-5 shadow" id="addToCartBtn">Add to Cart</button>
+
+                <!-- Artisan Spotlight -->
+                <div class="card bg-white border-0 shadow-sm rounded-4 p-4 position-relative">
+                    <span
+                        class="position-absolute top-0 end-0 bg-primary text-white py-1 px-3 rounded-bl-4 fw-bold small"
+                        style="border-radius: 0 1rem 0 1rem;">Meet the Maker</span>
+
+                    <div class="d-flex align-items-center mb-4 mt-3">
+                        <img id="artisanAvatar" src=""
+                            class="rounded-circle me-3 border border-3 border-light shadow-sm"
+                            style="width: 80px; height: 80px; object-fit: cover;">
+                        <div>
+                            <h4 class="fw-bold mb-0" id="artisanName">Loading...</h4>
+                            <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger"></i> <span
+                                    id="artisanLocation">Village</span></p>
+                        </div>
+                        <img id="artisanQrCode" src="" class="ms-auto qr-badge d-none" alt="Artisan Profile QR"
+                            style="width: 60px; height: 60px;">
+                    </div>
+
+                    <p class="small text-muted mb-4 fst-italic" id="artisanBio"></p>
+
+                    <!-- Impact & Transparency -->
+                    <div class="border-top pt-3">
+                        <h6 class="fw-bold mb-3 d-flex justify-content-between">
+                            <span>Fair Compensation Breakdown</span>
+                            <span class="text-success"><i class="fas fa-check-circle"></i> Verified</span>
+                        </h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Direct to Artisan</span>
+                                <span class="fw-bold">90%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Platform Support</span>
+                                <span class="fw-bold">10%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar" style="background-color: var(--accent); width: 10%"
+                                    role="progressbar"></div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-2">Local Impact Score</h6>
+                        <div class="impact-meter mb-2">
+                            <div class="impact-fill"></div>
+                        </div>
+                        <small class="text-muted d-block text-center">Your purchase sustains traditional heritage skills
+                            in rural India.</small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                document.getElementById('productContent').innerHTML = '<div class="alert alert-danger text-center">Product not found.</div>';
+                return;
+            }
+
+            try {
+                // Anyone can view products, fetchAPI attached auth conditionally
+                const res = await window.fetchAPI(`/products/${productId}`, 'GET');
+                const p = res; // Single object route format
+
+                const tmpl = document.getElementById('productTemplate');
+                document.getElementById('productContent').innerHTML = tmpl.innerHTML;
+
+                // Populate Fields
+                document.getElementById('breadName').innerText = p.name;
+                document.getElementById('prodName').innerText = p.name;
+                document.getElementById('prodPrice').innerText = `₹${p.price}`;
+                document.getElementById('prodDesc').innerText = p.description;
+                document.getElementById('prodMat').innerText = p.materials;
+                document.getElementById('prodTime').innerText = p.productionTime;
+
+                // New Story Telling Field
+                document.getElementById('makingStory').innerText = p.makingStory || "This craft incorporates generations of traditional skills passed down through families, utilizing local resources sustainably to create a masterpiece of cultural significance.";
+
+                // Images
+                if (p.images && p.images.length > 0) {
+                    document.getElementById('mainImage').src = p.images[0];
+                    if (p.images.length > 1) {
+                        document.getElementById('galleryImages').innerHTML = p.images.map((img, i) => `
+                            <img src="${img}" class="rounded border ${i === 0 ? 'border-primary' : ''}" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" onclick="document.getElementById('mainImage').src='${img}'">
+                        `).join('');
+                    }
+                } else {
+                    document.getElementById('mainImage').src = 'https://via.placeholder.com/600x500';
+                }
+
+                // QR Code mapping
+                if (p.qrCodeUrl) {
+                    const pq = document.getElementById('prodQrCode');
+                    pq.src = p.qrCodeUrl;
+                    pq.classList.remove('d-none');
+                }
+
+                // Artisan Info mapping
+                if (p.artisanProfile && p.artisanId) {
+                    document.getElementById('artisanName').innerText = p.artisanId.name;
+                    document.getElementById('artisanAvatar').src = p.artisanProfile.photo || 'https://via.placeholder.com/150';
+                    document.getElementById('artisanLocation').innerText = p.artisanProfile.village;
+                    document.getElementById('artisanBio').innerText = p.artisanProfile.story;
+
+                    if (p.artisanProfile.qrCodeUrl) {
+                        const aq = document.getElementById('artisanQrCode');
+                        aq.src = p.artisanProfile.qrCodeUrl;
+                        aq.classList.remove('d-none');
+                    }
+                }
+
+                // Add to cart listener
+                document.getElementById('addToCartBtn').addEventListener('click', async () => {
+                    const token = window.getToken();
+                    if (!token) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    try {
+                        const btn = document.getElementById('addToCartBtn');
+                        btn.innerHTML = 'Adding...';
+                        await window.fetchAPI('/cart', 'POST', { productId: p._id, quantity: 1 });
+                        btn.innerHTML = '✔ Added to Cart';
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-primary');
+                        setTimeout(() => {
+                            btn.innerHTML = 'Add to Cart';
+                            btn.classList.add('btn-primary');
+                            btn.classList.remove('btn-success');
+                        }, 2000);
+                    } catch (err) {
+                        alert(err.message);
+                        document.getElementById('addToCartBtn').innerHTML = 'Add to Cart';
+                    }
+                });
+
+            } catch (err) {
+                document.getElementById('productContent').innerHTML = `<div class="alert alert-danger text-center shadow-sm">Could not load product. <br><small>${err.message}</small></div>`;
+            }
+        });
+    </script>
+</body>
+
+</html>

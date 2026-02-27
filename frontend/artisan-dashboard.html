@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Dashboard | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .metric-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div id="alertBox"></div>
+        <div class="row" id="dashboardContent">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p>Loading Dashboard...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Profile Template (Hidden initially) -->
+    <template id="createProfileTemplate">
+        <div class="col-md-8 mx-auto">
+            <div class="card p-5 shadow-sm border-0">
+                <h3 class="fw-bold mb-4 brand-font text-dark text-center">Complete Your Artisan Profile</h3>
+                <form id="profileForm" onsubmit="submitProfile(event)">
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Your Village/Locality</label>
+                        <input type="text" class="form-control" id="village" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Your Story & Heritage</label>
+                        <textarea class="form-control" id="story" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Core Skills (comma separated)</label>
+                        <input type="text" class="form-control" id="skills" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Profile Photo</label>
+                            <input type="file" class="form-control" id="photo" accept="image/*" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Govt ID Image</label>
+                            <input type="file" class="form-control" id="govtIdImage" accept="image/*" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Selfie Holding ID</label>
+                            <input type="file" class="form-control" id="selfieImage" accept="image/*" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Aadhaar Number (12 Digits Only)</label>
+                            <input type="text" class="form-control" id="govtId" required maxlength="12"
+                                pattern="[0-9]{12}" title="Please enter exactly 12 numeric digits"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,12)">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Bank Account Number</label>
+                            <input type="password" class="form-control" id="bankAccount" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">IFSC Code</label>
+                            <input type="text" class="form-control" id="ifsc" required>
+                        </div>
+                    </div>
+
+                    <!-- Mock location since geolocation in browser needs HTTPS -->
+                    <input type="hidden" id="latitude" value="17.6868">
+                    <input type="hidden" id="longitude" value="83.2185">
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 mt-3" id="setupProfileBtn">Submit
+                        Profile For Verification</button>
+                </form>
+
+
+            </div>
+        </div>
+    </template>
+
+    <!-- Main Dashboard Template -->
+    <template id="mainDashboardTemplate">
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm border-0 sticky-top" style="top: 100px;">
+                <div class="text-center">
+                    <img id="artisanPhoto" src="https://via.placeholder.com/150" class="rounded-circle mb-3"
+                        style="width: 120px; height: 120px; object-fit: cover;">
+                    <h4 class="fw-bold" id="artisanName">Loading...</h4>
+                    <p class="text-muted small mb-1" id="artisanVillage"><i class="fas fa-map-marker-alt"></i> Locality
+                    </p>
+                    <span class="badge bg-success mb-3" id="artisanStatus">Approved</span>
+                </div>
+                <!-- Artisan QR -->
+                <div class="text-center mb-3">
+                    <p class="small text-muted fw-bold mb-1">Your Profile QR</p>
+                    <img id="artisanQR" src="" alt="Profile QR" width="100" class="border p-1 rounded d-none">
+                </div>
+                <hr>
+                <p class="small text-secondary" id="artisanStory">Story...</p>
+                <div id="artisanSkills" class="d-flex flex-wrap gap-1"></div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Business Metrics -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4">
+                    <div class="card p-3 shadow-sm border-0 text-center metric-card">
+                        <h2 class="fw-bold mb-0" id="metricProducts">0</h2>
+                        <small>Total Products</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="card p-3 shadow-sm border-0 text-center metric-card bg-success">
+                        <h2 class="fw-bold mb-0" id="metricOrders">0</h2>
+                        <small>Total Orders</small>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card p-3 shadow-sm border-0 text-center metric-card bg-dark">
+                        <h2 class="fw-bold mb-0" id="metricRevenue">₹0</h2>
+                        <small>Revenue Earned</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product -->
+            <div class="card p-4 shadow-sm border-0 mb-4 bg-white">
+                <h4 class="fw-bold mb-3">Add New Digital Product</h4>
+                <form id="productForm" onsubmit="submitProduct(event)">
+
+                    <div class="row bg-light rounded p-3 mb-3 border">
+                        <div class="col-12 mb-2"><span class="fw-bold text-secondary text-uppercase small">Dynamic Price
+                                Detector</span></div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-muted small">Material Cost (₹)</label>
+                            <input type="number" class="form-control form-control-sm" id="calcMaterial">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-muted small">Hours to Make</label>
+                            <input type="number" class="form-control form-control-sm" id="calcHours">
+                        </div>
+                        <div class="col-md-4 mb-2 align-self-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary w-100 fw-bold"
+                                onclick="suggestPrice()">Get Suggestion</button>
+                        </div>
+                        <div class="col-12 mt-2 d-none" id="suggestedPriceTag">
+                            <div class="p-2 border border-success rounded bg-white" id="suggestedPriceBox">
+                                <h6 class="fw-bold text-center mb-1">Pricing Breakdown:</h6>
+                                <div class="small fw-bold text-dark text-start lh-lg mt-2 mx-auto"
+                                    style="max-width:300px;" id="priceBreakdown"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Product Name</label>
+                            <input type="text" class="form-control" id="prodName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted fw-bold text-dark">Final Fair Price (₹)</label>
+                            <input type="number" class="form-control border-primary" id="prodPrice" required min="1">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-muted">Category</label>
+                            <select class="form-select" id="prodCategory" required>
+                                <option value="" disabled selected>Select a category...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Product Description</label>
+                        <textarea class="form-control" id="prodDesc" rows="2" required></textarea>
+                    </div>
+
+                    <!-- Storytelling Enforcement -->
+                    <div class="mb-3 p-3 bg-light border border-secondary rounded">
+                        <label class="form-label fw-bold text-dark">The Story Behind This Craft (Required)</label>
+                        <textarea class="form-control" id="makingStory" rows="3"
+                            placeholder="Share your inspiration, process, or cultural significance..."
+                            required></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Materials Used</label>
+                            <input type="text" class="form-control" id="prodMat" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Production Time</label>
+                            <input type="text" class="form-control" id="prodTime" placeholder="e.g., 3 days" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Product Images (Up to 5)</label>
+                        <input type="file" class="form-control" id="prodImages" accept="image/*" multiple required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold fs-5">List Product & Mint QR</button>
+                </form>
+            </div>
+
+            <h4 class="fw-bold mb-3 border-bottom pb-2">My Digital Art Gallery</h4>
+            <div id="myProductsGrid" class="row row-cols-1 row-cols-md-2 g-4 mb-5"></div>
+
+            <h4 class="fw-bold mb-3 border-bottom pb-2">Recent Artisan Orders</h4>
+            <div class="card p-4 shadow-sm border-0 mb-4 bg-white">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="text-muted small border-bottom">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Revenue</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="artisanOrdersTable">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">Loading orders...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="js/main.js"></script>
+    <script>
+        let artisanProfile = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = window.protectPage('artisan');
+            if (!user) return;
+
+            await loadDashboard();
+        });
+
+        async function loadCategories() {
+            try {
+                const res = await window.fetchAPI('/categories', 'GET');
+                if (res.success && res.data) {
+                    const select = document.getElementById('prodCategory');
+                    if (select) {
+                        res.data.forEach(cat => {
+                            const opt = document.createElement('option');
+                            opt.value = cat._id;
+                            opt.textContent = cat.name;
+                            select.appendChild(opt);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load categories", err);
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                // Check if profile exists
+                const res = await window.fetchAPI('/artisan/profile', 'GET');
+                if (res.success === false) throw new Error("Profile not found");
+
+                artisanProfile = res.data;
+
+                // If profile is returned but Aadhaar is missing/not verified
+                const usr = JSON.parse(localStorage.getItem('user'));
+                if (!usr.aadharVerified && usr.artisanStatus === 'pending') {
+                    // Fallback edge case logic if user exits midway
+                    document.getElementById('alertBox').innerHTML = `<div class="alert alert-warning">Aadhaar Verification Pending. Please contact Admin.</div>`;
+                }
+
+                renderMainDashboard();
+            } catch (err) {
+                if (err.message.includes('404') || err.message.includes('not found')) {
+                    renderCreateProfileForm();
+                } else {
+                    document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                }
+            }
+        }
+
+        function renderCreateProfileForm() {
+            const tmpl = document.getElementById('createProfileTemplate');
+            document.getElementById('dashboardContent').innerHTML = tmpl.innerHTML;
+        }
+
+        async function submitProfile(e) {
+            e.preventDefault();
+            const govtIdVal = document.getElementById('govtId').value;
+            if (!/^[0-9]{12}$/.test(govtIdVal)) {
+                return alert("Aadhaar Number must be exactly 12 numeric digits.");
+            }
+
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = 'Uploading Profile...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('village', document.getElementById('village').value);
+            formData.append('story', document.getElementById('story').value);
+            formData.append('skills', document.getElementById('skills').value);
+            formData.append('govtId', govtIdVal);
+            formData.append('phone', document.getElementById('phone').value);
+            formData.append('bankAccount', document.getElementById('bankAccount').value);
+            formData.append('ifsc', document.getElementById('ifsc').value);
+            formData.append('latitude', document.getElementById('latitude').value);
+            formData.append('longitude', document.getElementById('longitude').value);
+            formData.append('photo', document.getElementById('photo').files[0]);
+            formData.append('govtIdImage', document.getElementById('govtIdImage').files[0]);
+            formData.append('selfieImage', document.getElementById('selfieImage').files[0]);
+
+            try {
+                res = await window.fetchAPI('/artisan/profile', 'POST', formData, true);
+
+                const alertHtml = document.createElement('div');
+                alertHtml.className = 'alert alert-info position-fixed top-0 end-0 m-3 shadow-sm';
+                alertHtml.innerHTML = res.message;
+                alertHtml.style.zIndex = "9999";
+                document.body.appendChild(alertHtml);
+                setTimeout(() => window.location.reload(), 3000);
+            } catch (err) {
+                document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                btn.innerHTML = 'Submit Profile For Verification';
+                btn.disabled = false;
+            }
+        }
+
+
+        function renderMainDashboard() {
+            const tmpl = document.getElementById('mainDashboardTemplate');
+            document.getElementById('dashboardContent').innerHTML = tmpl.innerHTML;
+
+            // Paint profile
+            const userObj = JSON.parse(localStorage.getItem('user'));
+            document.getElementById('artisanName').innerText = userObj.name;
+            if (artisanProfile.photo && artisanProfile.photo !== 'no-photo.jpg') {
+                document.getElementById('artisanPhoto').src = artisanProfile.photo;
+            }
+            document.getElementById('artisanVillage').innerText = artisanProfile.village;
+            document.getElementById('artisanStory').innerText = artisanProfile.story;
+            document.getElementById('artisanStatus').innerText = artisanProfile.isApproved ? "Verified Local" : "Pending Verification";
+            document.getElementById('artisanStatus').className = artisanProfile.isApproved ? "badge bg-success mb-3" : "badge bg-warning text-dark mb-3";
+
+            if (artisanProfile.qrCodeUrl) {
+                const qrImg = document.getElementById('artisanQR');
+                qrImg.src = artisanProfile.qrCodeUrl;
+                qrImg.classList.remove('d-none');
+            }
+
+            if (artisanProfile.skills && artisanProfile.skills.length > 0) {
+                document.getElementById('artisanSkills').innerHTML = artisanProfile.skills.map(s => `<span class="badge bg-secondary">${s}</span>`).join('');
+            }
+
+            loadMyProducts();
+            loadMyStats();
+            loadCategories();
+        }
+
+        async function loadMyStats() {
+            try {
+                const res = await window.fetchAPI('/orders/artisan/stats', 'GET');
+                if (res.success) {
+                    document.getElementById('metricOrders').innerText = res.count;
+                    document.getElementById('metricRevenue').innerText = `₹${res.revenue.toLocaleString()}`;
+
+                    const ordersTable = document.getElementById('artisanOrdersTable');
+                    if (res.data && res.data.length > 0) {
+                        let html = '';
+                        res.data.forEach(order => {
+                            // Extract only the artisan's specific products from the customer's larger order
+                            const myProductsInOrder = order.products.filter(p => p.productId && p.productId.artisanId && p.productId.artisanId === artisanProfile.userId._id);
+
+                            myProductsInOrder.forEach(p => {
+                                html += `
+                                    <tr>
+                                        <td><small class="text-muted">${order._id}</small></td>
+                                        <td class="fw-bold">${p.productId.name}</td>
+                                        <td class="text-center">${p.quantity}</td>
+                                        <td class="text-end fw-bold text-primary">₹${(p.price * p.quantity).toLocaleString()}</td>
+                                        <td class="text-center"><span class="badge bg-secondary">${order.status}</span></td>
+                                    </tr>
+                                `;
+                            });
+                        });
+                        ordersTable.innerHTML = html || '<tr><td colspan="5" class="text-center text-muted py-3">No orders placed yet.</td></tr>';
+                    } else {
+                        ordersTable.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No orders placed yet.</td></tr>';
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch artisan stats:", err);
+                document.getElementById('artisanOrdersTable').innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">Failed to load orders.</td></tr>';
+            }
+        }
+
+        async function suggestPrice() {
+            const mat = document.getElementById('calcMaterial').value;
+            const hrs = document.getElementById('calcHours').value;
+            if (!mat || !hrs) return alert('Enter material cost and hours!');
+
+            try {
+                const res = await window.fetchAPI('/products/suggest-price', 'POST', {
+                    materialCost: mat,
+                    productionHours: hrs,
+                    location: artisanProfile.village || "Vizag"
+                });
+
+                const b = res.breakdown;
+                document.getElementById('priceBreakdown').innerHTML = `
+                    <div class="d-flex justify-content-between"><span>Base Cost:</span> <span>₹${b.baseCost.toFixed(2)}</span></div>
+                    <div class="d-flex justify-content-between"><span>Retail Price:</span> <span>₹${b.retailPrice.toFixed(2)}</span></div>
+                    <div class="d-flex justify-content-between"><span>Platform Fee:</span> <span>₹${b.platformFee.toFixed(2)}</span></div>
+                    <div class="d-flex justify-content-between"><span>Net to Artisan:</span> <span>₹${b.artisanNet.toFixed(2)}</span></div>
+                    <div class="d-flex justify-content-between text-success"><span>Artisan Profit:</span> <span id="artProfit">₹${b.artisanProfit.toFixed(2)}</span></div>
+                `;
+
+                const box = document.getElementById('suggestedPriceBox');
+                if (b.artisanProfit < 0) {
+                    document.getElementById('priceBreakdown').innerHTML += `<div class="alert alert-danger mt-3 mb-0 p-2 text-center" style="font-size: 0.85rem;"><i class="fas fa-exclamation-triangle"></i> This price results in loss.</div>`;
+                    box.classList.remove('border-success');
+                    box.classList.add('border-danger');
+                } else {
+                    box.classList.add('border-success');
+                    box.classList.remove('border-danger');
+                }
+
+                document.getElementById('suggestedPriceTag').classList.remove('d-none');
+
+                // Auto fill the final price input as quality of life
+                document.getElementById('prodPrice').value = b.retailPrice;
+            } catch (e) {
+                alert("Could not load suggested price.");
+            }
+        }
+
+        async function loadMyProducts() {
+            try {
+                const data = await window.fetchAPI('/products/artisan/myproducts', 'GET');
+                const products = data.data || [];
+                const grid = document.getElementById('myProductsGrid');
+
+                document.getElementById('metricProducts').innerText = products.length;
+
+                if (products.length === 0) {
+                    grid.innerHTML = `<div class="col-12"><div class="card p-4 text-center text-muted shadow-sm border-0">You haven't listed any products yet.</div></div>`;
+                    return;
+                }
+
+                grid.innerHTML = products.map(p => `
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 position-relative">
+                            ${p.qrCodeUrl ? `<img src="${p.qrCodeUrl}" width="50" class="position-absolute bg-white rounded shadow-sm" style="top:10px; right:10px; z-index:2;">` : ''}
+                            <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/150'}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            <div class="card-body">
+                                <span class="badge bg-light text-dark mb-1 border">${p.categoryId ? p.categoryId.name : 'Uncategorized'}</span>
+                                <h6 class="fw-bold mb-1">${p.name}</h6>
+                                <p class="text-primary fw-bold mb-2">₹${p.price}</p>
+                                <a href="product.html?id=${p._id}" class="btn btn-sm btn-outline-secondary w-100 mb-2">View Public Page</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('myProductsGrid').innerHTML = `<div class="alert alert-danger w-100">${err.message}</div>`;
+            }
+        }
+
+        async function submitProduct(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Minting Product...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('prodName').value);
+            formData.append('price', document.getElementById('prodPrice').value);
+            formData.append('categoryId', document.getElementById('prodCategory').value);
+            formData.append('description', document.getElementById('prodDesc').value);
+            formData.append('makingStory', document.getElementById('makingStory').value);
+            formData.append('materials', document.getElementById('prodMat').value);
+            formData.append('productionTime', document.getElementById('prodTime').value);
+
+            const files = document.getElementById('prodImages').files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+
+            try {
+                await window.fetchAPI('/products', 'POST', formData, true);
+                e.target.reset();
+                document.getElementById('suggestedPriceTag').classList.add('d-none');
+                await loadMyProducts();
+
+                const alertHtml = document.createElement('div');
+                alertHtml.className = 'alert alert-success position-fixed top-0 end-0 m-3 shadow-sm';
+                alertHtml.innerHTML = 'Product listed and Smart QR minted successfully!';
+                alertHtml.style.zIndex = "9999";
+                document.body.appendChild(alertHtml);
+                setTimeout(() => alertHtml.remove(), 4000);
+            } catch (err) {
+                document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
