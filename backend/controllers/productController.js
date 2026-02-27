@@ -101,6 +101,8 @@ const createProduct = async (req, res) => {
             productionTime,
             makingStory,
             makingProcess: makingStory,
+            materialCost: req.body.materialCost ? Number(req.body.materialCost) : 0,
+            laborHours: req.body.laborHours ? Number(req.body.laborHours) : 0,
             images: urls,
             artisanId: req.user._id,
             uniqueProductId: crypto.randomBytes(8).toString('hex'),
@@ -108,15 +110,22 @@ const createProduct = async (req, res) => {
         });
 
         const createdProduct = await product.save();
+        const Category = require('../models/Category');
+        const category = await Category.findById(categoryId);
 
         const qrData = JSON.stringify({
             type: "product",
             productId: createdProduct._id,
             productName: createdProduct.name,
-            uniqueProductId: createdProduct.uniqueProductId,
+            category: category ? category.name : "Uncategorized",
+            materialCost: createdProduct.materialCost,
+            laborHours: createdProduct.laborHours,
+            retailPrice: createdProduct.price,
+            artisanName: user.name,
+            artisanId: createdProduct.artisanId,
+            uniqueProductCode: createdProduct.uniqueProductId,
             rawMaterials: createdProduct.rawMaterials,
-            makingProcess: createdProduct.makingProcess,
-            artisanId: createdProduct.artisanId
+            manufacturingProcess: createdProduct.makingProcess
         });
         const qrCodeDataUrl = await QRCode.toDataURL(qrData);
 

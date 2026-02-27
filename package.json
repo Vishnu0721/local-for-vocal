@@ -1,17 +1,25 @@
 {
   "name": "local-for-vocal",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend API for Local for Vocal – Visakhapatnam Artisans Platform",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "node backend/seed.js"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "seed": "node backend/seed.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vishnu0721/local-for-vocal.git"
   },
-  "keywords": [],
+  "keywords": [
+    "express",
+    "mongoose",
+    "ecommerce",
+    "artisans",
+    "local-for-vocal"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -33,5 +41,8 @@
     "pdfkit": "^0.17.2",
     "qrcode": "^1.5.4",
     "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

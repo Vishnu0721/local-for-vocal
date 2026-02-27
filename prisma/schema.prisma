@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ARTISAN
+  ADMIN
+}
+
+model User {
+  id                            String           @id @default(cuid())
+  name                          String
+  email                         String           @unique
+  password                      String
+  role                          Role             @default(CUSTOMER)
+  isVerified                    Boolean          @default(false)
+  emailVerificationToken        String?          @unique
+  emailVerificationTokenExpires DateTime?
+  resetPasswordToken            String?          @unique
+  resetPasswordTokenExpires     DateTime?
+  createdAt                     DateTime         @default(now())
+  updatedAt                     DateTime         @updatedAt
+
+  artisanProfile ArtisanProfile?
+  products       Product[]       @relation("ArtisanProducts")
+  orders         Order[]
+  reviews        Review[]
+  cartItems      Cart[]
+}
+
+model ArtisanProfile {
+  id            String  @id @default(cuid())
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String  @unique
+  bio           String
+  story         String
+  location      String
+  phone         String
+  aadhaarNumber String?
+  profileImage  String?
+  isApproved    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id                   String          @id @default(cuid())
+  title                String
+  description          String
+  price                Float
+  stock                Int
+  materials            String[]
+  productionTime       String
+  productionDate       DateTime        @default(now())
+  handmadeProofImageUrl String?
+  images               String[]
+  geoLatitude          Float
+  geoLongitude         Float
+  artisanStory         String
+
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+
+  artisan           User            @relation("ArtisanProducts", fields: [artisanId], references: [id], onDelete: Cascade)
+  artisanId         String
+  artisanProfile    ArtisanProfile? @relation(fields: [artisanProfileId], references: [id])
+  artisanProfileId  String?
+
+  reviews    Review[]
+  orderItems OrderItem[]
+  cartItems  Cart[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  quantity  Int      @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  totalAmount   Float
+  status        String      @default("PENDING")
+  paymentStatus String      @default("PENDING")
+  shippingAddress String
+  city          String
+  state         String
+  postalCode    String
+  country       String
+
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  quantity  Int
+  price     Float
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+

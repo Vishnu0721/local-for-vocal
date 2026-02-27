@@ -160,25 +160,34 @@
                 const orderId = orderRes._id;
 
                 if (paymentMode === 'razorpay') {
-                    // Trigger Razorpay Create Order
-                    const rzpRes = await window.fetchAPI('/payment/create-order', 'POST', { orderId });
+                    // Trigger Razorpay Create Order directly by amount (rupees)
+                    const rzpRes = await window.fetchAPI('/payment/create-order', 'POST', { amount: finalPrice, orderId });
+
+                    if (!rzpRes || !rzpRes.id || !rzpRes.key_id) {
+                        throw new Error("Invalid Razorpay initialization response.");
+                    }
 
                     const options = {
-                        key: "rzp_test_mock123", // Using mock/fallback for testing
-                        amount: rzpRes.amount,
-                        currency: rzpRes.currency,
-                        name: "KalaConnect",
-                        description: "Artisan Marketplace Purchase",
+                        key: rzpRes.key_id,
+                        amount: rzpRes.amount, // this is in paise
+                        currency: "INR",
+                        name: "Local For Vocal",
+                        description: "Product Payment",
                         order_id: rzpRes.id,
                         handler: async function (response) {
                             try {
-                                await window.fetchAPI('/payment/verify', 'POST', {
+                                const verifyRes = await window.fetchAPI('/payment/verify', 'POST', {
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_signature: response.razorpay_signature || "mock_signature_success",
+                                    razorpay_signature: response.razorpay_signature,
                                     order_id: orderId
                                 });
-                                await completeCheckout();
+
+                                if (verifyRes.success) {
+                                    await completeCheckout();
+                                } else {
+                                    alert("Verification failed on server!");
+                                }
                             } catch (error) {
                                 alert("Payment verification failed! " + error.message);
                                 btn.disabled = false;
@@ -195,7 +204,7 @@
                         }
                     };
 
-                    const rzp1 = new Razorpay(options);
+                    const rzp1 = new window.Razorpay(options);
                     rzp1.on('payment.failed', function (response) {
                         alert("Payment Failed. Reason: " + response.error.description);
                         btn.disabled = false;

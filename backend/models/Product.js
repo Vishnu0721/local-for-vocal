@@ -28,6 +28,8 @@ const ProductSchema = new mongoose.Schema({
         required: [true, 'Please add materials used']
     },
     rawMaterials: String,
+    materialCost: { type: Number, default: 0 },
+    laborHours: { type: Number, default: 0 },
     productionTime: {
         type: String,
         required: [true, 'Please add production time']

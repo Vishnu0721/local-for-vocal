@@ -63,14 +63,16 @@ const createProfile = async (req, res) => {
         });
 
         const user = await User.findById(req.user.id);
+        const crypto = require('crypto');
         const qrData = JSON.stringify({
             type: "artisan",
             artisanId: artisan._id,
-            name: user.name,
-            govtId: maskedAadhaar,
-            verified: false,
-            physicalAddress: village,
-            story: story
+            artisanName: user.name,
+            verified: user.verificationStatus === 'approved',
+            specialization: artisan.skills.join(', '),
+            address: village,
+            artisanStory: story,
+            uniqueArtisanCode: crypto.randomBytes(4).toString('hex').toUpperCase()
         });
         const qrCodeDataUrl = await QRCode.toDataURL(qrData);
 

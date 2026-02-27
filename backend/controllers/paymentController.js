@@ -82,34 +82,40 @@ const generateReceipt = async (order) => {
 // @access  Private
 const createPaymentOrder = async (req, res) => {
     try {
-        const { orderId } = req.body;
+        const { amount, orderId } = req.body;
 
-        const order = await Order.findById(orderId);
-        if (!order) return res.status(404).json({ message: "Order not found" });
+        if (!amount) {
+            return res.status(400).json({ message: "Amount is required" });
+        }
 
         const options = {
-            amount: Math.round(order.totalPrice * 100), // amount in smallest currency unit (paise)
+            amount: Math.round(Number(amount) * 100), // convert to paise
             currency: "INR",
-            receipt: `receipt_order_${order._id}`
+            receipt: "receipt_" + Date.now()
         };
 
         if (!razorpayInstance) {
-            return res.status(500).json({ message: "Razorpay instance not created" });
+            return res.status(500).json({ message: "Razorpay instance not configured properly." });
         }
 
         const razorpayOrder = await razorpayInstance.orders.create(options);
 
-        // Update order status context
-        order.paymentMethod = "Razorpay";
-        order.paymentStatus = "COD_PENDING"; // Wait till verify
-        await order.save();
+        // Keep order linked securely over backend
+        if (orderId) {
+            const order = await Order.findById(orderId);
+            if (order) {
+                order.paymentMethod = "Razorpay";
+                order.paymentStatus = "COD_PENDING"; // Wait till verify
+                await order.save();
+            }
+        }
 
         res.json({
             success: true,
             id: razorpayOrder.id,
+            key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock123',
             currency: razorpayOrder.currency,
-            amount: razorpayOrder.amount,
-            orderData: order
+            amount: razorpayOrder.amount
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
