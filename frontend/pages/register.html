@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Local for Vocal</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .auth-container {
+            min-height: calc(100vh - 80px);
+            /* Minus header approx */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+            background-color: var(--color-bg);
+            background-image: linear-gradient(to right, rgba(160, 90, 69, 0.05), transparent);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: var(--spacing-lg) var(--spacing-md);
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .role-option:hover {
+            border-color: var(--color-primary-dark);
+            background-color: rgba(160, 90, 69, 0.05);
+        }
+
+        .role-option.active {
+            border-color: var(--color-primary);
+            background-color: rgba(160, 90, 69, 0.1);
+            color: var(--color-primary-dark);
+            font-weight: 700;
+        }
+
+        .role-option input[type="radio"] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container navbar">
+            <a href="/" class="logo" style="text-align: center; width: 100%; align-items: center;">
+                Local for Vocal
+            </a>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="card auth-card">
+            <h1 class="title-md text-center mb-2">Create Account</h1>
+            <p class="text-center text-muted mb-4">Join our artisan community</p>
+
+            <div id="alert-container" class="hide"></div>
+
+            <form id="registerForm">
+                <div class="form-group mb-4">
+                    <label class="form-label text-center">I am a...</label>
+                    <div class="role-selector">
+                        <label class="role-option active">
+                            <input type="radio" name="role" value="Customer" checked>
+                            Shopper
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="Artisan">
+                            Artisan
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required placeholder="Srinivas Rao">
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" required
+                        placeholder="srinivas@example.com">
+                </div>
+
+                <div class="form-group" id="artisan-fields" style="display: none;">
+                    <label for="craftType" class="form-label">Primary Craft/Discipline</label>
+                    <input type="text" id="craftType" name="craftType" class="form-control"
+                        placeholder="e.g. Kondapalli Toys, Etikoppaka">
+                    <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem;">We will contact you for
+                        verification after registration.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required
+                        placeholder="••••••••" minlength="6">
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                    Sign Up
+                </button>
+            </form>
+
+            <p class="text-center mt-4">
+                Already have an account? <a href="/pages/login.html"
+                    style="color: var(--color-primary); font-weight: 700; text-decoration: underline;">Login here</a>
+            </p>
+        </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already logged in
+            if (localStorage.getItem('token')) {
+                window.location.href = '/pages/dashboard.html';
+            }
+
+            const form = document.getElementById('registerForm');
+            const roleOptions = document.querySelectorAll('.role-option');
+            const artisanFields = document.getElementById('artisan-fields');
+            const craftTypeInput = document.getElementById('craftType');
+
+            // Handle role selection styling
+            roleOptions.forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                radio.addEventListener('change', (e) => {
+                    // Reset all
+                    roleOptions.forEach(opt => opt.classList.remove('active'));
+                    // Set active
+                    option.classList.add('active');
+
+                    // Show/hide artisan specific fields
+                    if (e.target.value === 'Artisan') {
+                        artisanFields.style.display = 'block';
+                        craftTypeInput.setAttribute('required', 'true');
+                    } else {
+                        artisanFields.style.display = 'none';
+                        craftTypeInput.removeAttribute('required');
+                    }
+                });
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                Main.hideAlert('alert-container');
+
+                // Form Data
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Find selected role
+                let role = "Customer";
+                document.querySelectorAll('input[name="role"]').forEach(radio => {
+                    if (radio.checked) role = radio.value;
+                });
+
+                // Validation
+                if (password !== confirmPassword) {
+                    Main.showAlert('alert-container', 'Passwords do not match');
+                    return;
+                }
+
+                // Prepare request payload
+                const payload = {
+                    name,
+                    email,
+                    password,
+                    role
+                };
+
+                if (role === 'Artisan') {
+                    // Adding specific data might vary based on your backend schema
+                    // Some systems expect metadata for artisans. Adjust as necessary.
+                    payload.craftType = craftTypeInput.value;
+                }
+
+                try {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.innerHTML = '<span class="loader" style="width:20px;height:20px;border-width:2px;vertical-align:middle;margin-right:10px;"></span> Creating...';
+                    submitBtn.disabled = true;
+
+                    // Call backend API
+                    const response = await API.post('/auth/register', payload);
+
+                    Main.showAlert('alert-container', 'Registration successful! Redirecting to login...', 'success');
+
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '/pages/login.html';
+                    }, 2000);
+
+                } catch (error) {
+                    Main.showAlert('alert-container', error.message || 'Registration failed. Please try again.');
+                } finally {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    submitBtn.textContent = 'Sign Up';
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
