@@ -45,8 +45,10 @@
         <div class="col-md-6 order-md-2 d-none d-md-flex flex-column justify-content-center align-items-center text-white"
             style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.9), rgba(198, 93, 59, 0.9)), url('https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&q=80') center/cover;">
             <div class="p-5 text-center">
-                <h1 class="display-5 fw-bold brand-font mb-4 text-white">Join the Movement</h1>
-                <p class="lead" style="color: #F5F1E8;">Become part of the community that values authenticity, heritage,
+                <h1 class="display-5 fw-bold brand-font mb-4 text-white" data-i18n="register.joinMovement">Join the
+                    Movement</h1>
+                <p class="lead" style="color: #F5F1E8;" data-i18n="register.subtitle">Become part of the community that
+                    values authenticity, heritage,
                     and pure origin crafts.</p>
             </div>
         </div>
@@ -55,49 +57,60 @@
         <div class="col-md-6 order-md-1 d-flex justify-content-center align-items-center bg-white">
             <div class="w-100 p-5" style="max-width: 500px;" id="formContainer">
                 <div class="text-center mb-5">
-                    <h2 class="fw-bold brand-font text-dark mb-2" id="formTitle">Create your account</h2>
-                    <p class="text-muted">Start your journey with KalaConnect</p>
+                    <h2 class="fw-bold brand-font text-dark mb-2" id="formTitle" data-i18n="register.createAccount">
+                        Create your account</h2>
+                    <p class="text-muted" data-i18n="register.startJourney">Start your journey with KalaConnect</p>
                 </div>
                 <div id="alertBox"></div>
 
                 <form id="registerForm">
                     <div class="d-flex gap-3 mb-4">
                         <input type="radio" name="role" id="roleCustomer" value="customer" class="role-radio" checked>
-                        <label for="roleCustomer" class="role-label p-2 px-3 small">Customer</label>
+                        <label for="roleCustomer" class="role-label p-2 px-3 small"
+                            data-i18n="register.roleCustomer">Customer</label>
                         <input type="radio" name="role" id="roleArtisan" value="artisan" class="role-radio">
-                        <label for="roleArtisan" class="role-label p-2 px-3 small">Artisan</label>
+                        <label for="roleArtisan" class="role-label p-2 px-3 small"
+                            data-i18n="register.roleArtisan">Artisan</label>
                         <input type="radio" name="role" id="roleAdmin" value="admin" class="role-radio">
-                        <label for="roleAdmin" class="role-label p-2 px-3 small">Admin</label>
+                        <label for="roleAdmin" class="role-label p-2 px-3 small"
+                            data-i18n="register.roleAdmin">Admin</label>
                     </div>
 
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="name" placeholder="John Doe" required>
-                        <label for="name" class="text-muted">Full Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="John Doe"
+                            data-i18n="register.fullName" required>
+                        <label for="name" class="text-muted" data-i18n="register.fullNameLabel">Full Name</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
-                        <label for="email" class="text-muted">Email address</label>
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com"
+                            data-i18n="login.email" required>
+                        <label for="email" class="text-muted" data-i18n="login.emailLabel">Email address</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="tel" class="form-control" id="phone" placeholder="Phone Number" required>
-                        <label for="phone" class="text-muted">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" placeholder="Phone Number"
+                            data-i18n="register.phone" required>
+                        <label for="phone" class="text-muted" data-i18n="register.phoneLabel">Phone Number</label>
                     </div>
                     <div class="form-floating mb-4">
-                        <input type="password" class="form-control" id="password" placeholder="Password" required>
-                        <label for="password" class="text-muted">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password"
+                            data-i18n="login.password" required>
+                        <label for="password" class="text-muted" data-i18n="login.password">Password</label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3">Sign Up</button>
-                    <p class="text-center text-muted">Already have an account? <a href="login.html"
-                            class="text-primary fw-bold text-decoration-none">Login</a></p>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3"
+                        data-i18n="register.signUp">Sign Up</button>
+                    <p class="text-center text-muted"><span data-i18n="register.alreadyHave">Already have an
+                            account?</span> <a href="login.html" class="text-primary fw-bold text-decoration-none"
+                            data-i18n="register.loginRef">Login</a></p>
                 </form>
             </div>
 
             <!-- Verification Form, Hidden initially -->
             <div class="w-100 p-5 d-none" style="max-width: 500px;" id="verifyContainer">
                 <div class="text-center mb-5">
-                    <h2 class="fw-bold brand-font text-dark mb-2">Verify Email</h2>
-                    <p class="text-muted">Enter the 6-digit OTP sent to your email.</p>
+                    <h2 class="fw-bold brand-font text-dark mb-2" data-i18n="register.verifyEmail">Verify Email</h2>
+                    <p class="text-muted" data-i18n="register.verifySubtitle">Enter the 6-digit OTP sent to your email.
+                    </p>
                 </div>
                 <div id="verifyAlertBox"></div>
 
@@ -106,7 +119,8 @@
                         <input type="text" class="form-control form-control-lg text-center fw-bold fs-3 border-primary"
                             id="otp" maxlength="6" required placeholder="••••••" style="letter-spacing: 12px;">
                     </div>
-                    <button type="submit" class="btn btn-secondary btn-lg w-100 fw-bold">Verify & Login</button>
+                    <button type="submit" class="btn btn-secondary btn-lg w-100 fw-bold"
+                        data-i18n="register.verifyBtn">Verify & Login</button>
                 </form>
             </div>
         </div>

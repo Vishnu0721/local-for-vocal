@@ -23,8 +23,9 @@
         <div class="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-white"
             style="background: linear-gradient(135deg, rgba(198, 93, 59, 0.9), rgba(46, 46, 46, 0.9)), url('https://images.unsplash.com/photo-1544967082-d9d25d867d66?auto=format&fit=crop&q=80') center/cover;">
             <div class="p-5 text-center">
-                <h1 class="display-5 fw-bold brand-font mb-4 text-white">Welcome Back</h1>
-                <p class="lead" style="color: #F5F1E8;">Continue empowering local artisans and discovering unique
+                <h1 class="display-5 fw-bold brand-font mb-4 text-white" data-i18n="login.welcomeBack">Welcome Back</h1>
+                <p class="lead" style="color: #F5F1E8;" data-i18n="login.subtitle">Continue empowering local artisans
+                    and discovering unique
                     heritage crafts.</p>
             </div>
         </div>
@@ -33,24 +34,29 @@
         <div class="col-md-6 d-flex justify-content-center align-items-center bg-white">
             <div class="w-100 p-5" style="max-width: 450px;">
                 <div class="text-center mb-5">
-                    <h2 class="fw-bold brand-font text-dark mb-2">Login to your account</h2>
-                    <p class="text-muted">Enter your credentials below</p>
+                    <h2 class="fw-bold brand-font text-dark mb-2" data-i18n="login.loginAccount">Login to your account
+                    </h2>
+                    <p class="text-muted" data-i18n="login.enterCredentials">Enter your credentials below</p>
                 </div>
                 <div id="alertBox"></div>
 
                 <form id="loginForm">
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
-                        <label for="email" class="text-muted">Email address</label>
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com"
+                            data-i18n="login.email" required>
+                        <label for="email" class="text-muted" data-i18n="login.emailLabel">Email address</label>
                     </div>
                     <div class="form-floating mb-4">
-                        <input type="password" class="form-control" id="password" placeholder="Password" required>
-                        <label for="password" class="text-muted">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password"
+                            data-i18n="login.password" required>
+                        <label for="password" class="text-muted" data-i18n="login.password">Password</label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3">Sign In</button>
-                    <p class="text-center text-muted">New here? <a href="register.html"
-                            class="text-primary fw-bold text-decoration-none">Create Account</a></p>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3"
+                        data-i18n="login.signIn">Sign In</button>
+                    <p class="text-center text-muted"><span data-i18n="login.newHere">New here?</span> <a
+                            href="register.html" class="text-primary fw-bold text-decoration-none"
+                            data-i18n="login.createAccount">Create Account</a></p>
                 </form>
             </div>
         </div>

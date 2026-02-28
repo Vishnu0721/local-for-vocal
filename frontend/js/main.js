@@ -35,38 +35,50 @@ const setupNav = () => {
 
         if (role === 'customer') {
             navLinks.innerHTML = `
-                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="${dashboardLink}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
-                <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="${dashboardLink}" data-i18n="nav.dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="cart.html" data-i18n="nav.cart">Cart</a></li>
+                <li class="nav-item"><a class="nav-link" href="orders.html" data-i18n="nav.orders">Orders</a></li>
                 <li class="nav-item">
-                    <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout (${user.name})</button>
+                    <button class="btn btn-outline-danger ms-2" onclick="logout()"> <span data-i18n="nav.logout">Logout</span> (${user.name})</button>
                 </li>
             `;
         } else if (role === 'artisan') {
             navLinks.innerHTML = `
-                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="${dashboardLink}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="artisan-dashboard.html#myProductsGrid">My Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="${dashboardLink}" data-i18n="nav.dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="artisan-dashboard.html#myProductsGrid" data-i18n="nav.myProducts">My Products</a></li>
                 <li class="nav-item">
-                    <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout (${user.name})</button>
+                    <button class="btn btn-outline-danger ms-2" onclick="logout()"> <span data-i18n="nav.logout">Logout</span> (${user.name})</button>
                 </li>
             `;
         } else if (role === 'admin') {
             navLinks.innerHTML = `
-                <li class="nav-item"><a class="nav-link" href="${dashboardLink}">Admin Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="${dashboardLink}" data-i18n="nav.dashboard">Admin Dashboard</a></li>
                 <li class="nav-item">
-                    <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout (${user.name})</button>
+                    <button class="btn btn-outline-danger ms-2" onclick="logout()"> <span data-i18n="nav.logout">Logout</span> (${user.name})</button>
                 </li>
             `;
         }
     } else {
         navLinks.innerHTML = `
-            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-            <li class="nav-item"><a class="btn btn-primary ms-2" href="register.html">Register</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="login.html" data-i18n="nav.login">Login</a></li>
+            <li class="nav-item"><a class="btn btn-primary ms-2" href="register.html" data-i18n="nav.register">Register</a></li>
         `;
     }
+
+    // Append standard language switcher
+    navLinks.innerHTML += `
+        <li class="nav-item ms-lg-3 mt-2 mt-lg-0 border-start ps-lg-3 d-flex align-items-center">
+            <span class="text-muted small me-2">🌐</span>
+            <select class="form-select form-select-sm shadow-none border-0 bg-light" style="width: auto; cursor:pointer;" onchange="changeLanguage(this.value)">
+                <option value="en" ${localStorage.getItem('kala_lang') === 'en' ? 'selected' : ''}>English</option>
+                <option value="hi" ${localStorage.getItem('kala_lang') === 'hi' ? 'selected' : ''}>हिंदी</option>
+                <option value="te" ${localStorage.getItem('kala_lang') === 'te' ? 'selected' : ''}>తెలుగు</option>
+            </select>
+        </li>
+    `;
 };
 
 const protectPage = (requiredRole) => {
@@ -140,4 +152,73 @@ window.getToken = getToken;
 window.decodeToken = decodeToken;
 window.protectPage = protectPage;
 
-document.addEventListener('DOMContentLoaded', setupNav);
+// --- i18n Vanilla Implementation ---
+const I18N_STORAGE_KEY = 'kala_lang';
+let currentDict = {};
+
+async function loadLanguage(lang) {
+    try {
+        const res = await fetch(`locales/${lang}/translation.json`);
+        if (!res.ok) throw new Error("Locale not found");
+        currentDict = await res.json();
+        localStorage.setItem(I18N_STORAGE_KEY, lang);
+        document.documentElement.lang = lang;
+        applyTranslations();
+    } catch (e) {
+        console.warn(`Could not load language: ${lang}`, e);
+        if (lang !== 'en') loadLanguage('en');
+    }
+}
+
+function t(keyPath) {
+    const keys = keyPath.split('.');
+    let result = currentDict;
+    for (let k of keys) {
+        if (result && result[k]) {
+            result = result[k];
+        } else {
+            return keyPath; // fallback to key
+        }
+    }
+    return typeof result === 'string' ? result : keyPath;
+}
+
+function applyTranslations() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        // Handle placeholders inside text nodes safely
+        if (el.tagName === 'INPUT' && el.type === 'button') {
+            el.value = t(key);
+        } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = t(key);
+        } else {
+            // only touch innerText to not overwrite HTML unless needed.
+            // But sometimes we need basic HTML replacement if there's no complex children.
+            if (el.children.length === 0) {
+                el.innerText = t(key);
+            } else {
+                // Update only the first text node, keep icons intact if properly structured
+                for (let i = 0; i < el.childNodes.length; i++) {
+                    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].nodeValue.trim() !== "") {
+                        el.childNodes[i].nodeValue = t(key);
+                        break;
+                    }
+                }
+            }
+        }
+    });
+}
+
+function changeLanguage(lang) {
+    loadLanguage(lang);
+}
+
+window.t = t;
+window.changeLanguage = changeLanguage;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem(I18N_STORAGE_KEY) || 'en';
+    loadLanguage(savedLang);
+    setupNav();
+});

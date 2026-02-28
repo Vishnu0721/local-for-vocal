@@ -20,12 +20,16 @@
 
     <div class="bg-primary text-white py-5 mb-5 text-center">
         <div class="container">
-            <h2 class="fw-bold mb-2">Welcome Back, <span id="userName">Shopper</span>!</h2>
-            <p class="lead mb-0 text-white-50">Discover authentic crafts from local Visakhapatnam artisans.</p>
+            <h2 class="fw-bold mb-2"><span data-i18n="dashboard.welcome">Welcome Back</span>, <span
+                    id="userName">Shopper</span>!</h2>
+            <p class="lead mb-0 text-white-50" data-i18n="dashboard.subtitle">Discover authentic crafts from local
+                Visakhapatnam artisans.</p>
 
             <div class="mt-4 gap-3 d-flex justify-content-center">
-                <a href="cart.html" class="btn btn-light bg-white text-primary fw-bold px-4">🛒 View Cart</a>
-                <a href="orders.html" class="btn btn-outline-light fw-bold px-4">🛍️ My Orders</a>
+                <a href="cart.html" class="btn btn-light bg-white text-primary fw-bold px-4"
+                    data-i18n="dashboard.viewCart">🛒 View Cart</a>
+                <a href="orders.html" class="btn btn-outline-light fw-bold px-4" data-i18n="dashboard.myOrders">🛍️ My
+                    Orders</a>
             </div>
         </div>
     </div>
@@ -35,7 +39,8 @@
         </div>
 
         <div class="mb-5 d-none" id="followedArtisansSection">
-            <h4 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-star text-warning"></i> From
+            <h4 class="fw-bold mb-3 border-bottom pb-2 text-primary" data-i18n="dashboard.followedArtisans"><i
+                    class="fas fa-star text-warning"></i> From
                 Artisans You Follow</h4>
             <div id="followedProducts" class="row row-cols-1 row-cols-md-4 g-4 mb-4">
                 <div class="w-100 text-center text-muted py-3">Loading followed products...</div>
@@ -43,7 +48,7 @@
         </div>
 
         <div class="text-center mb-4">
-            <h2 class="fw-bold brand-font text-dark mb-2">Explore Local Crafts</h2>
+            <h2 class="fw-bold brand-font text-dark mb-2" data-i18n="dashboard.exploreCrafts">Explore Local Crafts</h2>
             <div style="height: 3px; width: 60px; background-color: var(--accent); margin: 0 auto;"></div>
         </div>
         <div id="dynamicProducts" class="row row-cols-1 row-cols-md-3 g-4">

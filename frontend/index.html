@@ -26,14 +26,17 @@
 
     <header class="hero text-center position-relative">
         <div class="container">
-            <h1 class="display-3 fw-bold mb-4 brand-font" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Handcrafted
+            <h1 class="display-3 fw-bold mb-4 brand-font" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"
+                data-i18n="home.title">Handcrafted
                 Excellence</h1>
-            <p class="lead mb-5" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Empowering Artisans, Connecting
+            <p class="lead mb-5" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);" data-i18n="home.subtitle">Empowering
+                Artisans, Connecting
                 Consumers</p>
             <div class="input-group mb-3 w-50 mx-auto shadow-lg rounded">
                 <input type="text" id="searchInput" class="form-control form-control-lg border-0"
-                    placeholder="Search for pure origin crafts...">
-                <button class="btn btn-primary btn-lg px-4" onclick="searchProducts()">Discover</button>
+                    placeholder="Search for pure origin crafts..." data-i18n="home.searchPlaceholder">
+                <button class="btn btn-primary btn-lg px-4" onclick="searchProducts()"
+                    data-i18n="home.discover">Discover</button>
             </div>
         </div>
     </header>
@@ -63,7 +66,7 @@
                 grid.innerHTML = '';
 
                 if (products.length === 0) {
-                    grid.innerHTML = '<p class="text-center w-100">No products found.</p>';
+                    grid.innerHTML = `<p class="text-center w-100">${window.t ? window.t('home.noProducts') : 'No products found.'}</p>`;
                     return;
                 }
 

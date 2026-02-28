@@ -1,0 +1,96 @@
+{
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "cart": "Cart",
+        "orders": "Orders",
+        "logout": "Logout",
+        "login": "Login",
+        "register": "Register",
+        "myProducts": "My Products"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "save": "Save",
+        "submit": "Submit"
+    },
+    "dashboard": {
+        "welcome": "Welcome back",
+        "subtitle": "Discover authentic crafts from local Visakhapatnam artisans.",
+        "viewCart": "🛒 View Cart",
+        "myOrders": "🛍️ My Orders",
+        "followedArtisans": "From Artisans You Follow",
+        "exploreCrafts": "Explore Local Crafts",
+        "totalOrders": "Total Orders",
+        "revenue": "Revenue",
+        "addProduct": "Add New Product"
+    },
+    "login": {
+        "welcomeBack": "Welcome Back",
+        "subtitle": "Continue empowering local artisans and discovering unique heritage crafts.",
+        "loginAccount": "Login to your account",
+        "enterCredentials": "Enter your credentials below",
+        "emailLabel": "Email address",
+        "email": "name@example.com",
+        "password": "Password",
+        "signIn": "Sign In",
+        "newHere": "New here?",
+        "createAccount": "Create Account"
+    },
+    "register": {
+        "joinMovement": "Join the Movement",
+        "subtitle": "Become part of the community that values authenticity, heritage, and pure origin crafts.",
+        "createAccount": "Create your account",
+        "startJourney": "Start your journey with KalaConnect",
+        "roleCustomer": "Customer",
+        "roleArtisan": "Artisan",
+        "roleAdmin": "Admin",
+        "fullName": "John Doe",
+        "fullNameLabel": "Full Name",
+        "phone": "Phone Number",
+        "phoneLabel": "Phone Number",
+        "signUp": "Sign Up",
+        "alreadyHave": "Already have an account?",
+        "loginRef": "Login",
+        "verifyEmail": "Verify Email",
+        "verifySubtitle": "Enter the 6-digit OTP sent to your email.",
+        "verifyBtn": "Verify & Login"
+    },
+    "artisan": {
+        "completeProfile": "Complete Your Artisan Profile",
+        "locality": "Your Village/Locality",
+        "story": "Your Story & Heritage",
+        "skills": "Core Skills (comma separated)",
+        "photo": "Profile Photo",
+        "govtIdImg": "Govt ID Image",
+        "selfieImg": "Selfie Holding ID",
+        "aadhaarInfo": "Aadhaar Number (12 Digits Only)",
+        "bankAccount": "Bank Account Number",
+        "ifscCode": "IFSC Code",
+        "submitProfile": "Submit Profile For Verification",
+        "totalProducts": "Total Products",
+        "totalOrders": "Total Orders",
+        "revenue": "Revenue Earned",
+        "yourImpact": "📊 Your Impact",
+        "addProduct": "Add New Digital Product"
+    },
+    "home": {
+        "title": "Handcrafted Excellence",
+        "subtitle": "Empowering Artisans, Connecting Consumers",
+        "searchPlaceholder": "Search for pure origin crafts...",
+        "discover": "Discover",
+        "noProducts": "No products found."
+    },
+    "cart": {
+        "title": "Your Shopping Cart",
+        "checkout": "Proceed to Checkout",
+        "empty": "Your cart is empty."
+    },
+    "lang": {
+        "en": "English",
+        "hi": "हिंदी",
+        "te": "తెలుగు"
+    }
+}

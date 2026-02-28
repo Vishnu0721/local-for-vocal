@@ -81,53 +81,57 @@
     <template id="createProfileTemplate">
         <div class="col-md-8 mx-auto">
             <div class="card p-5 shadow-sm border-0">
-                <h3 class="fw-bold mb-4 brand-font text-dark text-center">Complete Your Artisan Profile</h3>
+                <h3 class="fw-bold mb-4 brand-font text-dark text-center" data-i18n="artisan.completeProfile">Complete
+                    Your Artisan Profile</h3>
                 <form id="profileForm" onsubmit="submitProfile(event)">
                     <div class="mb-3">
-                        <label class="form-label text-muted">Your Village/Locality</label>
+                        <label class="form-label text-muted" data-i18n="artisan.locality">Your Village/Locality</label>
                         <input type="text" class="form-control" id="village" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-muted">Your Story & Heritage</label>
+                        <label class="form-label text-muted" data-i18n="artisan.story">Your Story & Heritage</label>
                         <textarea class="form-control" id="story" rows="4" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-muted">Core Skills (comma separated)</label>
+                        <label class="form-label text-muted" data-i18n="artisan.skills">Core Skills (comma
+                            separated)</label>
                         <input type="text" class="form-control" id="skills" required>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label class="form-label text-muted">Profile Photo</label>
+                            <label class="form-label text-muted" data-i18n="artisan.photo">Profile Photo</label>
                             <input type="file" class="form-control" id="photo" accept="image/*" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-muted">Govt ID Image</label>
+                            <label class="form-label text-muted" data-i18n="artisan.govtIdImg">Govt ID Image</label>
                             <input type="file" class="form-control" id="govtIdImage" accept="image/*" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-muted">Selfie Holding ID</label>
+                            <label class="form-label text-muted" data-i18n="artisan.selfieImg">Selfie Holding ID</label>
                             <input type="file" class="form-control" id="selfieImage" accept="image/*" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Aadhaar Number (12 Digits Only)</label>
+                            <label class="form-label text-muted" data-i18n="artisan.aadhaarInfo">Aadhaar Number (12
+                                Digits Only)</label>
                             <input type="text" class="form-control" id="govtId" required maxlength="12"
                                 pattern="[0-9]{12}" title="Please enter exactly 12 numeric digits"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,12)">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Phone Number</label>
+                            <label class="form-label text-muted" data-i18n="register.phoneLabel">Phone Number</label>
                             <input type="text" class="form-control" id="phone" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Bank Account Number</label>
+                            <label class="form-label text-muted" data-i18n="artisan.bankAccount">Bank Account
+                                Number</label>
                             <input type="password" class="form-control" id="bankAccount" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">IFSC Code</label>
+                            <label class="form-label text-muted" data-i18n="artisan.ifscCode">IFSC Code</label>
                             <input type="text" class="form-control" id="ifsc" required>
                         </div>
                     </div>
@@ -136,7 +140,8 @@
                     <input type="hidden" id="latitude" value="17.6868">
                     <input type="hidden" id="longitude" value="83.2185">
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 mt-3" id="setupProfileBtn">Submit
+                    <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 mt-3" id="setupProfileBtn"
+                        data-i18n="artisan.submitProfile">Submit
                         Profile For Verification</button>
                 </form>
 
@@ -177,26 +182,26 @@
                 <div class="col-sm-6 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card">
                         <h2 class="fw-bold mb-0 text-white" id="metricProducts">0</h2>
-                        <small class="text-white">Total Products</small>
+                        <small class="text-white" data-i18n="artisan.totalProducts">Total Products</small>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card bg-success">
                         <h2 class="fw-bold mb-0 text-white" id="metricOrders">0</h2>
-                        <small class="text-white">Total Orders</small>
+                        <small class="text-white" data-i18n="artisan.totalOrders">Total Orders</small>
                     </div>
                 </div>
                 <div class="col-sm-12 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card bg-dark">
                         <h2 class="fw-bold mb-0 text-white" id="metricRevenue">₹0</h2>
-                        <small class="text-white">Revenue Earned</small>
+                        <small class="text-white" data-i18n="artisan.revenue">Revenue Earned</small>
                     </div>
                 </div>
             </div>
 
             <!-- Artisan Impact Section -->
             <div class="card shadow-sm border-0 mb-4 bg-white rounded-4">
-                <h4 class="fw-bold mb-3 border-bottom pb-2 text-dark">📊 Your Impact</h4>
+                <h4 class="fw-bold mb-3 border-bottom pb-2 text-dark" data-i18n="artisan.yourImpact">📊 Your Impact</h4>
                 <div class="row g-3 mb-3 text-center d-flex flex-wrap">
                     <div class="col-sm-6 col-md-3">
                         <div
@@ -235,7 +240,7 @@
 
             <!-- Add Product -->
             <div class="card p-4 shadow-sm border-0 mb-4 bg-white">
-                <h4 class="fw-bold mb-3">Add New Digital Product</h4>
+                <h4 class="fw-bold mb-3" data-i18n="artisan.addProduct">Add New Digital Product</h4>
                 <form id="productForm" onsubmit="submitProduct(event)">
 
                     <div class="row bg-light rounded p-3 mb-3 border">
