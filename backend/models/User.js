@@ -55,6 +55,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    followedArtisans: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     createdAt: {
         type: Date,
         default: Date.now

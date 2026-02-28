@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Profile | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+    <div class="container my-5" id="artisanContent">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const artisanId = urlParams.get('id');
+            if (!artisanId) {
+                document.getElementById('artisanContent').innerHTML = "<div class='alert alert-danger'>Artisan not found</div>";
+                return;
+            }
+            try {
+                const res = await window.fetchAPI(`/artisans/${artisanId}`);
+                const data = res.data;
+                const productsRes = await window.fetchAPI(`/products/artisan/${data.userId._id}`);
+                const products = productsRes.data || [];
+
+                let followBtnHtml = '';
+                const userObj = JSON.parse(localStorage.getItem('user'));
+                if (userObj && userObj.role === 'customer') {
+                    followBtnHtml = `<button id="publicFollowBtn" class="btn btn-outline-primary rounded-pill mt-3">Follow Artisan</button>`;
+                }
+
+                document.getElementById('artisanContent').innerHTML = `
+                   <div class="card p-4 shadow-sm border-0 mb-4 rounded-4">
+                       <div class="d-flex align-items-center gap-4">
+                           <img src="${data.photo || 'https://via.placeholder.com/150'}" class="rounded-circle border border-3 border-light shadow" style="width: 120px; height: 120px; object-fit: cover;">
+                           <div>
+                               <h2 class="fw-bold mb-1">${data.userId.name} ${data.isApproved ? '<i class="fas fa-check-circle text-success fs-5"></i>' : ''}</h2>
+                               <p class="text-muted mb-2"><i class="fas fa-map-marker-alt text-danger"></i> ${data.village || 'Visakhapatnam'}</p>
+                               <div class="d-flex gap-2 mb-2">
+                                  ${(data.skills || []).map(s => `<span class="badge bg-secondary">${s}</span>`).join('')}
+                               </div>
+                               ${followBtnHtml}
+                           </div>
+                       </div>
+                       <hr class="my-4">
+                       <h5 class="fw-bold">The Story</h5>
+                       <p class="text-muted lh-lg fst-italic">"${data.story}"</p>
+                   </div>
+                   <h4 class="fw-bold mb-3 border-bottom pb-2">Crafts by ${data.userId.name}</h4>
+                   <div class="row row-cols-1 row-cols-md-3 g-4">
+                        ${products.length === 0 ? '<div class="col-12 text-muted">No crafts listed yet.</div>' : products.map(p => `
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0 product-card">
+                                    <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300'}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h5 class="fw-bold text-dark">${p.name}</h5>
+                                        <p class="text-primary fw-bold">₹${p.price}</p>
+                                        <a href="product.html?id=${p._id}" class="btn btn-outline-primary w-100">View Product</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                   </div>
+                `;
+
+                if (userObj && userObj.role === 'customer') {
+                    const followBtn = document.getElementById('publicFollowBtn');
+                    try {
+                        const statusReq = await window.fetchAPI(`/follow/status/${data.userId._id}`);
+                        if (statusReq.isFollowing) followBtn.innerText = "Unfollow Artisan";
+                    } catch (e) { }
+
+                    followBtn.addEventListener('click', async () => {
+                        try {
+                            const fr = await window.fetchAPI('/follow', 'POST', { artisanId: data.userId._id });
+                            followBtn.innerText = fr.isFollowing ? "Unfollow Artisan" : "Follow Artisan";
+                        } catch (e) {
+                            alert("Action failed.");
+                        }
+                    });
+                }
+            } catch (err) {
+                document.getElementById('artisanContent').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+            }
+        });
+    </script>
+</body>
+
+</html>

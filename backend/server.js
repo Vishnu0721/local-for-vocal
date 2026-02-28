@@ -16,6 +16,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const shippingRoutes = require('./routes/shippingRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const followRoutes = require('./routes/followRoutes');
 const connectDB = require('./config/db');
 
 // Connect to database
@@ -43,6 +45,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipping', shippingRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/follow', followRoutes);
 
 app.get('/', (req, res) => {
     res.send('KalaConnect API is running...');

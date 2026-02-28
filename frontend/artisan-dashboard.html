@@ -9,9 +9,51 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         .metric-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
+            background-color: var(--primary, #0d6efd);
+            /* fallback */
+            color: #ffffff !important;
             border-radius: 15px;
+            padding: 1.25rem !important;
+            /* Proper padding min 16px */
+            line-height: 1.5;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .metric-card * {
+            color: #ffffff !important;
+        }
+
+        .metric-card.bg-success {
+            background-color: #198754 !important;
+        }
+
+        .metric-card.bg-dark {
+            background-color: #212529 !important;
+        }
+
+        .card {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.5;
+            padding: 16px;
+            /* minimum padding */
+            min-width: 150px;
+            /* responsive min width */
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .d-flex,
+        .row {
+            flex-wrap: wrap !important;
         }
     </style>
 </head>
@@ -121,30 +163,72 @@
                     <img id="artisanQR" src="" alt="Profile QR" width="100" class="border p-1 rounded d-none">
                 </div>
                 <hr>
-                <p class="small text-secondary" id="artisanStory">Story...</p>
-                <div id="artisanSkills" class="d-flex flex-wrap gap-1"></div>
+                <div class="px-2" style="max-height: 300px; overflow-y: auto;">
+                    <p class="small text-secondary lh-lg text-break" id="artisanStory"
+                        style="overflow-wrap: break-word;">Story...</p>
+                    <div id="artisanSkills" class="d-flex flex-wrap gap-2 mt-2"></div>
+                </div>
             </div>
         </div>
 
         <div class="col-md-8">
             <!-- Business Metrics -->
-            <div class="row g-3 mb-4">
-                <div class="col-6 col-md-4">
+            <div class="row g-3 mb-4 d-flex flex-wrap">
+                <div class="col-sm-6 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card">
-                        <h2 class="fw-bold mb-0" id="metricProducts">0</h2>
-                        <small>Total Products</small>
+                        <h2 class="fw-bold mb-0 text-white" id="metricProducts">0</h2>
+                        <small class="text-white">Total Products</small>
                     </div>
                 </div>
-                <div class="col-6 col-md-4">
+                <div class="col-sm-6 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card bg-success">
-                        <h2 class="fw-bold mb-0" id="metricOrders">0</h2>
-                        <small>Total Orders</small>
+                        <h2 class="fw-bold mb-0 text-white" id="metricOrders">0</h2>
+                        <small class="text-white">Total Orders</small>
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-sm-12 col-md-4">
                     <div class="card p-3 shadow-sm border-0 text-center metric-card bg-dark">
-                        <h2 class="fw-bold mb-0" id="metricRevenue">₹0</h2>
-                        <small>Revenue Earned</small>
+                        <h2 class="fw-bold mb-0 text-white" id="metricRevenue">₹0</h2>
+                        <small class="text-white">Revenue Earned</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artisan Impact Section -->
+            <div class="card shadow-sm border-0 mb-4 bg-white rounded-4">
+                <h4 class="fw-bold mb-3 border-bottom pb-2 text-dark">📊 Your Impact</h4>
+                <div class="row g-3 mb-3 text-center d-flex flex-wrap">
+                    <div class="col-sm-6 col-md-3">
+                        <div
+                            class="p-3 bg-light rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold text-dark mb-0" style="word-break: break-all;" id="impactProductsSold">0
+                            </h3>
+                            <small class="text-dark fw-bold">Products Sold</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div
+                            class="p-3 bg-light rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold text-success mb-0" style="word-break: break-all;" id="impactEarnings">₹0
+                            </h3>
+                            <small class="text-dark fw-bold">Total Earnings</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div
+                            class="p-3 bg-light rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold text-warning mb-0" style="word-break: break-all;" id="impactAvgRating">
+                                0.0</h3>
+                            <small class="text-dark fw-bold">Avg Rating</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div
+                            class="p-3 bg-light rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold text-primary mb-0" style="word-break: break-all;" id="impactRepeat">0
+                            </h3>
+                            <small class="text-dark fw-bold">Repeat Customers</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -219,6 +303,26 @@
                             <input type="text" class="form-control" id="prodTime" placeholder="e.g., 3 days" required>
                         </div>
                     </div>
+
+                    <!-- Sustainability Indicators -->
+                    <div class="mb-3 p-3 bg-light rounded border">
+                        <h6 class="fw-bold text-dark mb-2">Sustainability Indicators</h6>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="ecoFriendly" value="true">
+                            <label class="form-check-label text-success fw-bold" for="ecoFriendly">🌿 Eco
+                                Friendly</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="plasticFree" value="true">
+                            <label class="form-check-label text-info fw-bold" for="plasticFree">♻ Plastic Free</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="locallySourced" value="true">
+                            <label class="form-check-label text-warning fw-bold" for="locallySourced">🏡 Locally
+                                Sourced</label>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label text-muted">Product Images (Up to 5)</label>
                         <input type="file" class="form-control" id="prodImages" accept="image/*" multiple required>
@@ -381,6 +485,14 @@
                 document.getElementById('artisanSkills').innerHTML = artisanProfile.skills.map(s => `<span class="badge bg-secondary">${s}</span>`).join('');
             }
 
+            // Fill Impact Data
+            if (artisanProfile) {
+                document.getElementById('impactProductsSold').innerText = artisanProfile.totalProductsSold || 0;
+                document.getElementById('impactEarnings').innerText = `₹${(artisanProfile.totalEarnings || 0).toLocaleString()}`;
+                document.getElementById('impactAvgRating').innerText = (artisanProfile.averageRating || 0).toFixed(1);
+                document.getElementById('impactRepeat').innerText = artisanProfile.repeatCustomers || 0;
+            }
+
             loadMyProducts();
             loadMyStats();
             loadCategories();
@@ -407,7 +519,14 @@
                                         <td class="fw-bold">${p.productId.name}</td>
                                         <td class="text-center">${p.quantity}</td>
                                         <td class="text-end fw-bold text-primary">₹${(p.price * p.quantity).toLocaleString()}</td>
-                                        <td class="text-center"><span class="badge bg-secondary">${order.status}</span></td>
+                                        <td class="text-center">
+                                            <select class="form-select form-select-sm d-inline-block w-auto" onchange="updateOrderStatus('${order._id}', this.value)">
+                                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                            </select>
+                                        </td>
                                     </tr>
                                 `;
                             });
@@ -420,6 +539,21 @@
             } catch (err) {
                 console.error("Failed to fetch artisan stats:", err);
                 document.getElementById('artisanOrdersTable').innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">Failed to load orders.</td></tr>';
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await window.fetchAPI(`/orders/${orderId}/status`, 'PUT', { status: newStatus });
+                const alertHtml = document.createElement('div');
+                alertHtml.className = 'alert alert-success position-fixed top-0 end-0 m-3 shadow-sm';
+                alertHtml.innerHTML = 'Order Status Updated!';
+                alertHtml.style.zIndex = "9999";
+                document.body.appendChild(alertHtml);
+                setTimeout(() => alertHtml.remove(), 3000);
+            } catch (err) {
+                alert("Failed to update status: " + err.message);
+                loadMyStats(); // reset dropdown
             }
         }
 
@@ -510,6 +644,12 @@
             formData.append('makingStory', document.getElementById('makingStory').value);
             formData.append('materials', document.getElementById('prodMat').value);
             formData.append('productionTime', document.getElementById('prodTime').value);
+            formData.append('ecoFriendly', document.getElementById('ecoFriendly').checked);
+            formData.append('plasticFree', document.getElementById('plasticFree').checked);
+            formData.append('locallySourced', document.getElementById('locallySourced').checked);
+
+            if (document.getElementById('calcMaterial').value) formData.append('materialCost', document.getElementById('calcMaterial').value);
+            if (document.getElementById('calcHours').value) formData.append('laborHours', document.getElementById('calcHours').value);
 
             const files = document.getElementById('prodImages').files;
             for (let i = 0; i < files.length; i++) {

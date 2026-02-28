@@ -96,9 +96,44 @@ const getArtisanOrders = async (req, res) => {
     }
 };
 
+// @desc    Update order status timeline tracking
+// @route   PUT /api/orders/:id/status
+// @access  Private/Artisan
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['pending', 'processing', 'shipped', 'delivered'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.status = status;
+
+        if (!order.timeline) order.timeline = {};
+
+        if (status === 'processing' && !order.timeline.craftingStartedAt) order.timeline.craftingStartedAt = new Date();
+        if (status === 'shipped' && !order.timeline.shippedAt) order.timeline.shippedAt = new Date();
+        if (status === 'delivered' && !order.timeline.deliveredAt) order.timeline.deliveredAt = new Date();
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createOrder,
     getMyOrders,
     getOrderById,
-    getArtisanOrders
+    getArtisanOrders,
+    updateOrderStatus
 };

@@ -26,6 +26,12 @@ const ArtisanSchema = new mongoose.Schema({
         latitude: Number,
         longitude: Number
     },
+    area: String,
+    craftCategory: String,
+    totalProductsSold: { type: Number, default: 0 },
+    totalEarnings: { type: Number, default: 0 },
+    averageRating: { type: Number, default: 0 },
+    repeatCustomers: { type: Number, default: 0 },
     isApproved: {
         type: Boolean,
         default: false

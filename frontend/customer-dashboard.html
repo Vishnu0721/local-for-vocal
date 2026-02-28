@@ -32,7 +32,18 @@
 
     <div class="container mb-5">
         <div class="text-center mb-5">
-            <h2 class="fw-bold brand-font text-dark mb-2">My Customer Dashboard</h2>
+        </div>
+
+        <div class="mb-5 d-none" id="followedArtisansSection">
+            <h4 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-star text-warning"></i> From
+                Artisans You Follow</h4>
+            <div id="followedProducts" class="row row-cols-1 row-cols-md-4 g-4 mb-4">
+                <div class="w-100 text-center text-muted py-3">Loading followed products...</div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold brand-font text-dark mb-2">Explore Local Crafts</h2>
             <div style="height: 3px; width: 60px; background-color: var(--accent); margin: 0 auto;"></div>
         </div>
         <div id="dynamicProducts" class="row row-cols-1 row-cols-md-3 g-4">
@@ -51,8 +62,36 @@
 
             document.getElementById('userName').innerText = user.name || JSON.parse(localStorage.getItem('user')).name;
 
+            await loadFollowedProducts();
             await loadCustomerProducts();
         });
+
+        async function loadFollowedProducts() {
+            try {
+                const res = await window.fetchAPI('/follow/products');
+                if (res && res.length > 0) {
+                    document.getElementById('followedArtisansSection').classList.remove('d-none');
+                    const grid = document.getElementById('followedProducts');
+                    grid.innerHTML = res.map(p => `
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 product-card">
+                                <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/300'}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                <div class="card-body p-3">
+                                    <h6 class="fw-bold text-dark mb-1">${p.name}</h6>
+                                    <p class="small text-muted mb-2">By ${p.artisanId.name}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-primary">₹${p.price}</span>
+                                        <a href="product.html?id=${p._id}" class="btn btn-sm btn-outline-primary">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Failed to load followed products", e);
+            }
+        }
 
         async function loadCustomerProducts() {
             try {

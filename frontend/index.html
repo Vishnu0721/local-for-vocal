@@ -40,18 +40,6 @@
 
     <main class="container my-5">
         <div id="alertBox"></div>
-        <div class="text-center mb-5">
-            <h2 class="fw-bold brand-font text-dark mb-2">Curated Collections</h2>
-            <div style="height: 3px; width: 60px; background-color: var(--accent); margin: 0 auto;"></div>
-        </div>
-
-        <!-- Categories Ribbon -->
-        <div class="d-flex overflow-auto gap-3 py-3 px-2 mb-4 category-scroll" id="categoryRibbon"
-            style="scrollbar-width: none;">
-            <!-- Categories injected by JS -->
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-        </div>
-
         <div class="row g-4" id="products-grid">
             <!-- Products injected by JS -->
             <div class="text-center w-100">
@@ -62,25 +50,7 @@
 
     <script src="js/main.js"></script>
     <script>
-        async function loadCategories() {
-            try {
-                const res = await fetch(`${window.API_URL}/categories`);
-                const data = await res.json();
-                const categories = data.data || [];
-                const ribbon = document.getElementById('categoryRibbon');
-
-                let html = `<a href="index.html" class="btn btn-outline-primary rounded-pill px-4 fw-bold active">All</a>`;
-
-                categories.forEach(c => {
-                    html += `<a href="category.html?slug=${c.slug}" class="btn btn-outline-dark border-0 bg-white shadow-sm rounded-pill px-4 fw-bold">${c.name}</a>`;
-                });
-
-                ribbon.innerHTML = html;
-            } catch (err) {
-                console.error("Failed to load categories", err);
-                document.getElementById('categoryRibbon').innerHTML = '';
-            }
-        }
+        // Category load logic removed
 
         async function loadProducts(keyword = '') {
             try {
@@ -114,11 +84,16 @@
                                         <h5 class="price-gold mb-0">₹${p.price}</h5>
                                     </div>
                                     <p class="text-muted small mb-3"><i class="fas fa-map-marker-alt me-1 text-primary"></i>${village}</p>
-                                    <div class="d-flex align-items-center mb-4">
-                                        <span class="badge-artisan small">
+                                    <div class="d-flex align-items-center mb-4 flex-wrap gap-2">
+                                        <span class="badge-artisan small" title="Verified Origin">
                                             <i class="fas fa-check-circle me-1"></i>Verified Artisan
                                         </span>
-                                        <span class="ms-2 small text-muted">by ${artisanName}</span>
+                                        ${(p.artisanProfile && p.artisanProfile.averageRating > 4.5 && p.artisanProfile.totalProductsSold >= 20) ? `<span class="badge bg-warning text-dark small" title="Top Rated & Trusted"><i class="fas fa-star me-1"></i>Top Rated</span>` : ''}
+                                        <span class="ms-2 small text-muted w-100 mt-1">by ${artisanName}</span>
+                                    </div>
+                                    <div class="d-flex gap-1 mb-3">
+                                        ${p.ecoFriendly ? '<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fas fa-leaf"></i> Eco</span>' : ''}
+                                        ${p.locallySourced ? '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary"><i class="fas fa-home"></i> Local</span>' : ''}
                                     </div>
                                     <a href="product.html?id=${p._id}" class="btn btn-secondary w-100 fw-bold py-2">View Craft</a>
                                 </div>
@@ -140,7 +115,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const urlSearch = urlParams.get('search');
 
-        loadCategories();
         if (urlSearch) {
             document.getElementById('searchInput').value = urlSearch;
             loadProducts(urlSearch);

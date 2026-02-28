@@ -4,12 +4,14 @@ const {
     createOrder,
     getMyOrders,
     getOrderById,
-    getArtisanOrders
+    getArtisanOrders,
+    updateOrderStatus
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/').post(protect, authorize('customer'), createOrder).get(protect, authorize('customer'), getMyOrders);
 router.route('/artisan/stats').get(protect, authorize('artisan'), getArtisanOrders);
 router.route('/:id').get(protect, getOrderById);
+router.route('/:id/status').put(protect, authorize('artisan'), updateOrderStatus);
 
 module.exports = router;

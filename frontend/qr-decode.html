@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Traceability | KalaConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="index.html">KalaConnect</a>
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-primary text-white p-5 text-center position-relative">
+                <i class="fas fa-shield-alt fs-1 mb-3 text-warning"></i>
+                <h2 class="fw-bold brand-font mb-1">Authenticity Verified</h2>
+                <p class="mb-0 text-white-50">Traceability Record for KalaConnect Artifact</p>
+                <div class="position-absolute" style="top: 20px; right: 20px;">
+                    <span class="badge bg-success border border-white p-2 px-3 fw-bold fs-6"><i
+                            class="fas fa-check-circle me-1"></i> Genuine Origin</span>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-white">
+                <div id="loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Decoding Secure QR Data...</p>
+                </div>
+                <div id="error" class="alert alert-danger d-none text-center rounded-3"></div>
+
+                <div id="dataContainer" class="d-none">
+                    <div class="row g-5">
+                        <div class="col-md-5 border-end-md">
+                            <h4 class="fw-bold text-dark mb-4 border-bottom pb-2">Artifact Identity</h4>
+
+                            <div class="mb-4">
+                                <label class="text-muted small fw-bold text-uppercase d-block mb-1">Product Name</label>
+                                <h5 class="fw-bold text-primary m-0" id="t-name">--</h5>
+                                <span class="badge bg-light text-dark mt-2 border" id="t-cat">--</span>
+                            </div>
+
+                            <div class="mb-4 bg-light p-3 rounded border">
+                                <label class="text-muted small fw-bold text-uppercase d-block mb-1">Unique Identifier
+                                    Key (UID)</label>
+                                <h6 class="font-monospace text-dark m-0" id="t-uid">--</h6>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-white border rounded shadow-sm">
+                                <i class="fas fa-user-circle fs-1 text-secondary"></i>
+                                <div>
+                                    <label class="text-muted small fw-bold text-uppercase d-block mb-0">Crafted
+                                        By</label>
+                                    <h5 class="fw-bold m-0" id="t-artisan">--</h5>
+                                    <a id="t-artisanLink" href="#"
+                                        class="btn btn-sm btn-outline-primary mt-2 py-0 px-2 rounded-pill">View
+                                        Profile</a>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="text-muted small fw-bold text-uppercase d-block mb-1"><i
+                                        class="fas fa-map-marker-alt text-danger me-1"></i> Geographical Origin</label>
+                                <h6 class="fw-bold text-dark m-0" id="t-loc">--</h6>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 ps-md-4">
+                            <h4 class="fw-bold text-dark mb-4 border-bottom pb-2">Production Timeline & Materials</h4>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <div class="p-3 border rounded h-100 bg-light">
+                                        <label class="text-muted small fw-bold text-uppercase d-block mb-1"><i
+                                                class="fas fa-calendar-check text-success me-1"></i> Production
+                                            Date</label>
+                                        <h6 class="fw-bold text-dark m-0" id="t-date">--</h6>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-3 border rounded h-100 bg-light">
+                                        <label class="text-muted small fw-bold text-uppercase d-block mb-1"><i
+                                                class="fas fa-barcode text-primary me-1"></i> Internal Serial
+                                            Number</label>
+                                        <h6 class="font-monospace text-dark m-0" id="t-serial">--</h6>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-muted small fw-bold text-uppercase d-block mb-1">Raw Materials
+                                    Used</label>
+                                <canvas id="materialsCanvas" class="d-none"></canvas>
+                                <p class="text-dark bg-light p-3 rounded border" id="t-materials">--</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-muted small fw-bold text-uppercase d-block mb-1">Manufacturing
+                                    Process</label>
+                                <p class="text-dark bg-light p-3 rounded border lh-lg fst-italic" id="t-process">--</p>
+                            </div>
+
+                            <div class="p-3 border rounded bg-light border-warning">
+                                <h6 class="fw-bold text-warning-emphasis mb-2"><i class="fas fa-coins me-1"></i> Fair
+                                    Trade Economics Validated</h6>
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>Material Cost: ₹<span id="t-mat-cost">--</span></span>
+                                    <span>Labor Hrs: <span id="t-labor">--</span></span>
+                                    <span class="fw-bold text-success">Retail: ₹<span id="t-price">--</span></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light text-center py-3 text-muted small">
+                Scanned via KalaConnect Authenticity Engine v2.0
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawData = urlParams.get('data');
+            const dataContainer = document.getElementById('dataContainer');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+
+            if (!rawData) {
+                loading.classList.add('d-none');
+                errorDiv.innerText = "Invalid or Missing QR Data Fragment. Cannot Verify Authenticity.";
+                errorDiv.classList.remove('d-none');
+                return;
+            }
+
+            try {
+                // The QR code likely embeds a heavily encoded URI component representing JSON
+                const decodedJsonStr = decodeURIComponent(rawData);
+                const qrData = JSON.parse(decodedJsonStr);
+
+                if (qrData.type !== 'product') {
+                    throw new Error("This QR Code does not map to a standard product traceability object.");
+                }
+
+                // Hydrate Fields
+                document.getElementById('t-name').innerText = qrData.productName || 'Unknown Product';
+                document.getElementById('t-cat').innerText = qrData.category || 'General';
+                document.getElementById('t-uid').innerText = qrData.uniqueProductCode || 'N/A';
+                document.getElementById('t-artisan').innerText = qrData.artisanName || 'Verified Artisan';
+                document.getElementById('t-loc').innerText = qrData.location || 'Visakhapatnam Region';
+
+                document.getElementById('t-date').innerText = qrData.productionDate ? new Date(qrData.productionDate).toLocaleString() : 'Pre-timeline Tracking';
+                document.getElementById('t-serial').innerText = qrData.serialNumber || 'Legacy Item';
+
+                document.getElementById('t-materials').innerText = qrData.rawMaterials || 'Standard materials';
+                document.getElementById('t-process').innerText = `"${qrData.manufacturingProcess || 'Handcrafted using traditional methods.'}"`;
+
+                document.getElementById('t-mat-cost').innerText = qrData.materialCost || '...';
+                document.getElementById('t-labor').innerText = qrData.laborHours || '...';
+                document.getElementById('t-price').innerText = qrData.retailPrice ? qrData.retailPrice.toLocaleString() : '...';
+
+                if (qrData.artisanId) {
+                    const profileRoute = typeof qrData.artisanId === 'string' ? qrData.artisanId : qrData.artisanId._id;
+                    if (profileRoute) document.getElementById('t-artisanLink').href = `artisan-public.html?id=${profileRoute}`;
+                } else {
+                    document.getElementById('t-artisanLink').classList.add('d-none');
+                }
+
+                loading.classList.add('d-none');
+                dataContainer.classList.remove('d-none');
+
+            } catch (err) {
+                console.error("QR Decode Error:", err);
+                loading.classList.add('d-none');
+                errorDiv.innerHTML = "<strong>Verification Error:</strong> Data integrity check failed or QR code is corrupted. This artifact may not be verified by KalaConnect.";
+                errorDiv.classList.remove('d-none');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -30,6 +30,12 @@ const ProductSchema = new mongoose.Schema({
     rawMaterials: String,
     materialCost: { type: Number, default: 0 },
     laborHours: { type: Number, default: 0 },
+    laborRatePerHour: { type: Number, default: 0 },
+    platformFeePercent: { type: Number, default: 20 },
+    baseCost: { type: Number, default: 0 },
+    retailPrice: { type: Number, default: 0 },
+    platformFee: { type: Number, default: 0 },
+    artisanProfit: { type: Number, default: 0 },
     productionTime: {
         type: String,
         required: [true, 'Please add production time']
@@ -58,6 +64,12 @@ const ProductSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    serialNumber: String,
+    productionDate: Date,
+    batchNumber: String,
+    ecoFriendly: { type: Boolean, default: false },
+    plasticFree: { type: Boolean, default: false },
+    locallySourced: { type: Boolean, default: false },
     createdAt: {
         type: Date,
         default: Date.now

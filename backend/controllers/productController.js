@@ -91,6 +91,26 @@ const createProduct = async (req, res) => {
             return res.status(403).json({ message: 'Your account is not verified by admin.' });
         }
 
+        const materialCost = req.body.materialCost ? Number(req.body.materialCost) : 0;
+        const laborHours = req.body.laborHours ? Number(req.body.laborHours) : 0;
+
+        let settings = await AdminSettings.findOne();
+        if (!settings) {
+            settings = await AdminSettings.create({});
+        }
+
+        const laborRatePerHour = settings.laborRatePerHour || 100;
+        const platformFeePercent = req.body.platformFeePercent ? Number(req.body.platformFeePercent) : 20;
+
+        const baseCost = materialCost + (laborHours * laborRatePerHour);
+        const retailPrice = Number(price);
+        const platformFee = retailPrice * (platformFeePercent / 100);
+        const artisanProfit = retailPrice - baseCost - platformFee;
+
+        const serialNumber = 'SN-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const productionDate = new Date();
+        const batchNumber = 'BN-' + new Date().getFullYear() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase();
+
         const product = new Product({
             name,
             price,
@@ -101,8 +121,20 @@ const createProduct = async (req, res) => {
             productionTime,
             makingStory,
             makingProcess: makingStory,
-            materialCost: req.body.materialCost ? Number(req.body.materialCost) : 0,
-            laborHours: req.body.laborHours ? Number(req.body.laborHours) : 0,
+            materialCost,
+            laborHours,
+            laborRatePerHour,
+            platformFeePercent,
+            baseCost,
+            retailPrice,
+            platformFee,
+            artisanProfit,
+            serialNumber,
+            productionDate,
+            batchNumber,
+            ecoFriendly: req.body.ecoFriendly === 'true' || req.body.ecoFriendly === true,
+            plasticFree: req.body.plasticFree === 'true' || req.body.plasticFree === true,
+            locallySourced: req.body.locallySourced === 'true' || req.body.locallySourced === true,
             images: urls,
             artisanId: req.user._id,
             uniqueProductId: crypto.randomBytes(8).toString('hex'),
@@ -112,6 +144,9 @@ const createProduct = async (req, res) => {
         const createdProduct = await product.save();
         const Category = require('../models/Category');
         const category = await Category.findById(categoryId);
+
+        const artisanProfileObj = await Artisan.findOne({ userId: req.user._id });
+        const artisanLocation = artisanProfileObj ? artisanProfileObj.village : "Unknown";
 
         const qrData = JSON.stringify({
             type: "product",
@@ -125,9 +160,15 @@ const createProduct = async (req, res) => {
             artisanId: createdProduct.artisanId,
             uniqueProductCode: createdProduct.uniqueProductId,
             rawMaterials: createdProduct.rawMaterials,
-            manufacturingProcess: createdProduct.makingProcess
+            manufacturingProcess: createdProduct.makingProcess,
+            serialNumber: createdProduct.serialNumber,
+            productionDate: createdProduct.productionDate,
+            location: artisanLocation
         });
-        const qrCodeDataUrl = await QRCode.toDataURL(qrData);
+
+        // Wrap data into a URL for easy scanning on any mobile device
+        const qrUrl = `http://localhost:3000/qr-decode.html?data=${encodeURIComponent(qrData)}`;
+        const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
 
         // Save QR Code
         createdProduct.qrCodeUrl = qrCodeDataUrl;

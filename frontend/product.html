@@ -82,7 +82,33 @@
                     <img id="prodQrCode" src="" class="qr-badge d-none" alt="Product Authenticity QR">
                 </div>
 
-                <h3 class="price-gold fw-bold mb-4" id="prodPrice">₹0</h3>
+                <div class="mb-3 d-flex gap-2 flex-wrap" id="sustainabilityIcons"></div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="price-gold fw-bold mb-0 me-3" id="prodPrice">₹0</h3>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#priceBreakdownCollapse">
+                        See Price Breakdown
+                    </button>
+                </div>
+
+                <div class="collapse mb-4" id="priceBreakdownCollapse">
+                    <div class="card card-body bg-light border-0 shadow-sm">
+                        <h6 class="fw-bold fs-6 mb-3">Fair Compensation Proof</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Materials + Labor</span>
+                            <span class="fw-bold" id="bdBaseCost">₹0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-muted">
+                            <span>Platform Fee</span>
+                            <span class="fw-bold" id="bdPlatformFee">₹0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 pt-2 border-top text-success">
+                            <span class="fw-bold">Artisan Net Profit</span>
+                            <span class="fw-bold fs-5" id="bdArtisanProfit">₹0</span>
+                        </div>
+                    </div>
+                </div>
 
                 <p class="text-secondary lh-lg mb-4" id="prodDesc"></p>
 
@@ -116,9 +142,17 @@
                             class="rounded-circle me-3 border border-3 border-light shadow-sm"
                             style="width: 80px; height: 80px; object-fit: cover;">
                         <div>
-                            <h4 class="fw-bold mb-0" id="artisanName">Loading...</h4>
-                            <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger"></i> <span
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h4 class="fw-bold mb-0" id="artisanName">Loading...</h4>
+                                <span id="artisanVerifiedBadge" class="badge bg-success d-none"><i
+                                        class="fas fa-check-circle"></i> Verified Artisan</span>
+                                <span id="artisanTopRatedBadge" class="badge bg-warning text-dark d-none"><i
+                                        class="fas fa-star"></i> Top Rated</span>
+                            </div>
+                            <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt text-danger"></i> <span
                                     id="artisanLocation">Village</span></p>
+                            <button id="followArtisanBtn"
+                                class="btn btn-sm btn-outline-primary mt-1 d-none rounded-pill">Follow Artisan</button>
                         </div>
                         <img id="artisanQrCode" src="" class="ms-auto qr-badge d-none" alt="Artisan Profile QR"
                             style="width: 60px; height: 60px;">
@@ -162,6 +196,42 @@
                 </div>
 
             </div>
+            <!-- Reviews Section -->
+            <div class="col-12 mt-5">
+                <hr>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0">Customer Reviews <span class="badge bg-secondary ms-2"
+                            id="reviewCountBadge">0</span></h4>
+                    <span class="text-warning fw-bold fs-5" id="avgRatingDisplay">⭐⭐⭐⭐⭐ 5.0</span>
+                </div>
+
+                <div class="card bg-light border-0 shadow-sm p-4 mb-4 d-none" id="reviewFormContainer">
+                    <h6 class="fw-bold mb-3">Write a Review</h6>
+                    <form id="reviewForm">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Rating (1-5)</label>
+                            <select id="reviewRating" class="form-select w-25" required>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Comment</label>
+                            <textarea id="reviewComment" class="form-control" rows="3" required
+                                placeholder="Share your experience..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary fw-bold" id="submitReviewBtn">Post Review</button>
+                    </form>
+                </div>
+
+                <div id="reviewsList" class="row g-3">
+                    <div class="col-12 text-center text-muted small py-4">No reviews yet. Be the first!</div>
+                </div>
+            </div>
+
         </div>
     </template>
 
@@ -228,6 +298,26 @@
                     }
                 }
 
+                // Badges
+                if (p.artisanProfile && p.artisanProfile.isApproved) {
+                    document.getElementById('artisanVerifiedBadge').classList.remove('d-none');
+                }
+                if (p.artisanProfile && p.artisanProfile.averageRating > 4.5) {
+                    document.getElementById('artisanTopRatedBadge').classList.remove('d-none');
+                }
+
+                // Sustainability Icons
+                let iconsHtml = '';
+                if (p.ecoFriendly) iconsHtml += `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-2 px-3"><i class="fas fa-leaf me-1"></i> Eco Friendly</span>`;
+                if (p.plasticFree) iconsHtml += `<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 py-2 px-3"><i class="fas fa-recycle me-1"></i> Plastic Free</span>`;
+                if (p.locallySourced) iconsHtml += `<span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 py-2 px-3"><i class="fas fa-home me-1"></i> Locally Sourced</span>`;
+                document.getElementById('sustainabilityIcons').innerHTML = iconsHtml;
+
+                // Price Breakdown
+                document.getElementById('bdBaseCost').innerText = `₹${p.baseCost || (p.materialCost + (p.laborHours * 100))}`;
+                document.getElementById('bdPlatformFee').innerText = `₹${p.platformFee || (p.price * 0.2)}`;
+                document.getElementById('bdArtisanProfit').innerText = `₹${p.artisanProfit || (p.price - (p.materialCost + (p.laborHours * 100)) - (p.price * 0.2))}`;
+
                 // Add to cart listener
                 document.getElementById('addToCartBtn').addEventListener('click', async () => {
                     const token = window.getToken();
@@ -253,10 +343,87 @@
                     }
                 });
 
+                // Load Reviews
+                loadReviews(p._id);
+
+                // Handle Review Form display and Follow button if logged in as customer
+                const userObj = JSON.parse(localStorage.getItem('user'));
+                if (userObj && userObj.role === 'customer') {
+                    document.getElementById('reviewFormContainer').classList.remove('d-none');
+                    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const btn = document.getElementById('submitReviewBtn');
+                        btn.disabled = true;
+                        btn.innerHTML = 'Posting...';
+                        try {
+                            await window.fetchAPI('/reviews', 'POST', {
+                                productId: p._id,
+                                artisanId: p.artisanId._id || p.artisanId,
+                                rating: document.getElementById('reviewRating').value,
+                                comment: document.getElementById('reviewComment').value
+                            });
+                            alert("Review posted!");
+                            loadReviews(p._id);
+                            document.getElementById('reviewForm').reset();
+                        } catch (err) {
+                            alert(err.message);
+                        } finally {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Post Review';
+                        }
+                    });
+
+                    // Follow System
+                    const followBtn = document.getElementById('followArtisanBtn');
+                    if (p.artisanId) {
+                        followBtn.classList.remove('d-none');
+                        // Check status
+                        try {
+                            const statusReq = await window.fetchAPI(`/follow/status/${p.artisanId._id || p.artisanId}`);
+                            if (statusReq.isFollowing) followBtn.innerText = "Unfollow Artisan";
+                        } catch (e) { }
+
+                        followBtn.addEventListener('click', async () => {
+                            try {
+                                const fr = await window.fetchAPI('/follow', 'POST', { artisanId: p.artisanId._id || p.artisanId });
+                                followBtn.innerText = fr.isFollowing ? "Unfollow Artisan" : "Follow Artisan";
+                            } catch (e) {
+                                alert("Action failed.");
+                            }
+                        });
+                    }
+                }
+
             } catch (err) {
                 document.getElementById('productContent').innerHTML = `<div class="alert alert-danger text-center shadow-sm">Could not load product. <br><small>${err.message}</small></div>`;
             }
         });
+
+        async function loadReviews(pid) {
+            try {
+                const res = await window.fetchAPI(`/reviews/${pid}`);
+                document.getElementById('reviewCountBadge').innerText = res.count;
+                document.getElementById('avgRatingDisplay').innerText = `⭐ ${res.average.toFixed(1)}`;
+
+                if (res.reviews && res.reviews.length > 0) {
+                    document.getElementById('reviewsList').innerHTML = res.reviews.map(r => `
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white border rounded shadow-sm">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold text-dark">${r.customerId.name}</span>
+                                    <span class="text-warning">
+                                        ${Array(r.rating).fill('⭐').join('')}
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-0">${r.comment}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Reviews load failed", e);
+            }
+        }
     </script>
 </body>
 

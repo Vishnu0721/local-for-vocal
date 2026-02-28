@@ -48,6 +48,13 @@ const OrderSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    timeline: {
+        placedAt: { type: Date, default: Date.now },
+        craftingStartedAt: Date,
+        readyAt: Date,
+        shippedAt: Date,
+        deliveredAt: Date
     }
 });
 
