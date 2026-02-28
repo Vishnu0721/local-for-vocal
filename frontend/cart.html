@@ -92,6 +92,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/main.js"></script>
     <script>
         let cartData = [];
@@ -190,49 +191,102 @@
                 const orderId = orderRes._id;
 
                 if (paymentMode === 'razorpay') {
-                    const fakePaymentId = 'pay_demo_' + Math.random().toString(36).substring(2, 14);
+                    // Call backend to create Razorpay Order
+                    const rzpOrder = await window.fetchAPI('/payment/create-order', 'POST', { amount: finalPrice, orderId: orderId });
 
-                    let demoModalEl = document.getElementById('demoRazorpayModal');
-                    let demoModal = new bootstrap.Modal(demoModalEl, { backdrop: 'static', keyboard: false });
+                    if (rzpOrder.isDemo) {
+                        const fakePaymentId = 'pay_demo_' + Math.random().toString(36).substring(2, 14);
 
-                    document.getElementById('demoModalOrderId').innerText = orderId;
-                    document.getElementById('demoModalAmount').innerText = '₹' + finalPrice.toFixed(2);
+                        let demoModalEl = document.getElementById('demoRazorpayModal');
+                        let demoModal = new bootstrap.Modal(demoModalEl, { backdrop: 'static', keyboard: false });
 
-                    document.getElementById('demoSimulateBtn').onclick = async function () {
-                        this.innerHTML = "Processing...";
-                        this.disabled = true;
-                        document.getElementById('demoCancelBtn').disabled = true;
+                        document.getElementById('demoModalOrderId').innerText = orderId;
+                        document.getElementById('demoModalAmount').innerText = '₹' + finalPrice.toFixed(2);
 
-                        try {
-                            const verifyRes = await window.fetchAPI('/payment/verify', 'POST', {
-                                razorpay_payment_id: fakePaymentId,
-                                razorpay_order_id: `order_demo_${Date.now()}`,
-                                razorpay_signature: "mock_demo_sig_" + fakePaymentId,
-                                order_id: orderId
-                            });
+                        document.getElementById('demoSimulateBtn').onclick = async function () {
+                            this.innerHTML = "Processing...";
+                            this.disabled = true;
+                            document.getElementById('demoCancelBtn').disabled = true;
 
-                            if (verifyRes.success) {
-                                demoModal.hide();
-                                await completeCheckout();
-                            } else {
-                                alert("Verification failed on simulated gateway!");
+                            try {
+                                const verifyRes = await window.fetchAPI('/payment/verify', 'POST', {
+                                    razorpay_payment_id: fakePaymentId,
+                                    razorpay_order_id: rzpOrder.id,
+                                    razorpay_signature: "mock_demo_sig_" + fakePaymentId,
+                                    order_id: orderId
+                                });
+
+                                if (verifyRes.success) {
+                                    demoModal.hide();
+                                    await completeCheckout();
+                                } else {
+                                    alert("Verification failed on simulated gateway!");
+                                }
+                            } catch (e) {
+                                alert("Demo verification failed! " + e.message);
+                            } finally {
+                                this.innerHTML = "Simulate Successful Payment";
+                                this.disabled = false;
+                                document.getElementById('demoCancelBtn').disabled = false;
                             }
-                        } catch (e) {
-                            alert("Demo verification failed! " + e.message);
-                        } finally {
-                            this.innerHTML = "Simulate Successful Payment";
-                            this.disabled = false;
-                            document.getElementById('demoCancelBtn').disabled = false;
-                        }
-                    };
+                        };
 
-                    document.getElementById('demoCancelBtn').onclick = function () {
-                        btn.disabled = false;
-                        btn.innerHTML = 'Proceed to Secure Checkout';
-                    };
+                        document.getElementById('demoCancelBtn').onclick = function () {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Proceed to Secure Checkout';
+                        };
 
-                    demoModal.show();
-
+                        demoModal.show();
+                    } else {
+                        // Launch actual Razorpay Gateway
+                        const options = {
+                            key: rzpOrder.key_id,
+                            amount: rzpOrder.amount,
+                            currency: rzpOrder.currency,
+                            name: "KalaConnect",
+                            description: "Artisan Secure Payment",
+                            order_id: rzpOrder.id,
+                            handler: async function (response) {
+                                try {
+                                    const verifyRes = await window.fetchAPI('/payment/verify', 'POST', {
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        order_id: orderId
+                                    });
+                                    if (verifyRes.success) {
+                                        await completeCheckout();
+                                    } else {
+                                        alert("Verification failed on gateway!");
+                                        btn.disabled = false;
+                                        btn.innerHTML = 'Proceed to Secure Checkout';
+                                    }
+                                } catch (e) {
+                                    alert("Payment verification error: " + e.message);
+                                    btn.disabled = false;
+                                    btn.innerHTML = 'Proceed to Secure Checkout';
+                                }
+                            },
+                            prefill: {
+                                name: "KalaConnect Customer",
+                                contact: "9999999999"
+                            },
+                            theme: { color: "#0d6efd" },
+                            modal: {
+                                ondismiss: function () {
+                                    btn.disabled = false;
+                                    btn.innerHTML = 'Proceed to Secure Checkout';
+                                }
+                            }
+                        };
+                        const rzp = new window.Razorpay(options);
+                        rzp.on('payment.failed', function (response) {
+                            alert("Payment Failed. Reason: " + response.error.description);
+                            btn.disabled = false;
+                            btn.innerHTML = 'Proceed to Secure Checkout';
+                        });
+                        rzp.open();
+                    }
                 } else {
                     // Trigger COD Path
                     await window.fetchAPI('/payment/cod', 'POST', { orderId });
